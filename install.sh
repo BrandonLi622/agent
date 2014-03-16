@@ -1,8 +1,7 @@
 #!/usr/bin/sh
 
 # Prequisites:
-# - Ubuntu
-# - Python 2.7
+# - Python 2.7 with development headers (python-dev)
 
 HOMEDIR=`pwd`
 
@@ -40,11 +39,16 @@ su -c "/usr/local/pgsql/bin/initdb -D /usr/local/pgsql/data/" postgres
 su -c "/usr/local/pgsql/bin/postmaster -D /usr/local/pgsql/data > /home/postgres/logfile 2>&1 &" postgres
 su -c "/usr/local/pgsql/bin/createdb agent" postgres
 sudo ln -s /usr/local/pgsql/bin/psql /usr/local/bin/psql
+
+# Add Postgres binaries to path (optional)
+echo 'PATH="/usr/local/pgsql/bin":$PATH' > ~/.bashrc
+source ~/.bashrc
+
 # To login: psql agent postgres
 
 cd $HOMEDIR
 
 # Install psycopg2
-sudo pip install psycopg2
+sudo PATH=/usr/local/pgsql/bin:$PATH pip install psycopg2
 
 # Add django user with appropriate permissions
