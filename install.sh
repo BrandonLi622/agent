@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/bash
 
 # Prequisites:
 # - Python 2.7 with development headers (python-dev)
