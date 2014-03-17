@@ -27,8 +27,8 @@ class FacebookAccount(models.Model):
 		return self.facebook_name
 
 class FBFriendship(models.Model):
-	facebook_id1 = models.ForeignKey(FacebookAccount)
-	facebook_id2 = models.ForeignKey(FacebookAccount)
+	facebook_id1 = models.ForeignKey(FacebookAccount, related_name='FBFriendship_id1')
+	facebook_id2 = models.ForeignKey(FacebookAccount, related_name='FBFriendship_id2')
 
 	def __unicode__(self):
 		return (self.facebook_id1 + self.facebook_id2)
@@ -43,8 +43,8 @@ class LinkedInAccount(models.Model):
 		return self.linkedin_name
 
 class LIFriendship(models.Model):
-	linkedin_id1 = models.ForeignKey(LinkedInAccount)
-	linkedin_id2 = models.ForeignKey(LinkedInAccount)
+	linkedin_id1 = models.ForeignKey(LinkedInAccount, related_name='LIFriendship_id1')
+	linkedin_id2 = models.ForeignKey(LinkedInAccount, related_name='LIFriendship_id2')
 
 	def __unicode__(self):
 		return (self.linkedin_id1 + self.linkedin_id2)
