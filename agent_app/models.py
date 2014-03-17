@@ -10,6 +10,9 @@ from django.db import models
 # Accounts
 ###############################################################################
 
+#Django creates default primary keys:
+#https://docs.djangoproject.com/en/dev/topics/db/models/#automatic-primary-key-fields
+
 class Account(models.Model):
 	def __unicode__(self):
 		return self.site_name
