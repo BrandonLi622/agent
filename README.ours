@@ -1,0 +1,10 @@
+README
+
+have to run as:
+python manage.py runserver localhost:8000
+
+the reason is that the allowed urls on the registration on facebook are:
+-localhost:8000
+(nothing else yet)
+
+go to localhost:8000/agent for the front page
