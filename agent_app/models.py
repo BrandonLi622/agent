@@ -16,7 +16,7 @@ class User(models.Model):
 		return self.facebook_name
 
 class SiteInteraction(models.Model):
-    user_id = models.ForeignKey(User)
+    user_id = models.ForeignKey(User) # Defaults to DELETE CASCADE
 
     site_name = models.CharField(max_length=20)
 

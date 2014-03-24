@@ -15,13 +15,13 @@ TOPICS_URL = 'https://www.googleapis.com/freebase/v1/topic'
 
 FREEBASE_MID_REGEX = r'^\/m\/\w+$'
 
-def add_interaction(user_id, source_type, entities,
+def add_interaction(user, source_type, entities,
         site_name='facebook'):
     '''Store a given interaction represented by a facebook user_id, source type
     (class name), and list of entities'''
 
-    freebase_topics = entities_to_freebase_topics(entities)
-    for topic in freebase_topics:
+    topics = entities_to_topics(entities)
+    for topic in topics:
         mid = topic['mid']
         id = topic['id']
         name = topic['name']
@@ -30,42 +30,42 @@ def add_interaction(user_id, source_type, entities,
         if re.search(FREEBASE_MID_REGEX, notable_type):
             # The 'notable' field was a related entity, so look
             # up the original entity and extract notable type
-            topic = get_freebase_topic(mid)
+            topic = get_topic(mid)
             notable_types = topic['property']['/common/topic/notable_types']['values']
             if len(notable_types) == 0:
                 notable_type = None
             else:
                 notable_type = notable_types[0]['id']
 
-        type = freebase_id_to_mid(notable_type)
+        type = id_to_mid(notable_type)
         notable_domain = '/' + notable_type.split('/')[1]
-        domain = freebase_id_to_mid(notable_domain)
+        domain = id_to_mid(notable_domain)
 
         # Create object of type source type
-        interaction = source_type(user_id=user_id,
+        interaction = source_type(user_id=user,
                 site_name=site_name, freebase_mid=mid,
                 freebase_id=id, freebase_name=name,
                 freebase_type=type, freebase_domain=domain)
         interaction.save()
 
-def entities_to_freebase_topics(entities):
+def entities_to_topics(entities):
     '''Given a string of tags, return a list of freebase search response
     objects corresponding to those tags'''
 
-    freebase_topics = []
+    topics = []
     for entity in entities:
-        results = search_freebase(entity)
+        results = search(entity)
         if len(results) == 0:
             continue
 
         # For now, only consider first result
         best_match = results[0]
-        freebase_topics.append(best_match)
+        topics.append(best_match)
 
-    return freebase_topics
+    return topics
 
-def freebase_id_to_mid(id):
-    topic = get_freebase_topic(id)
+def id_to_mid(id):
+    topic = get_topic(id)
     if topic is None:
         return None
 
@@ -75,18 +75,18 @@ def freebase_id_to_mid(id):
     else:
         return mids[0]['text']
 
-def search_freebase(query):
+def search(query):
     if query is None:
         return None
 
-    params = { 'query': entity, 'key': API_KEY }
+    params = { 'query': query, 'key': API_KEY }
     url = SEARCH_URL + '?' + urllib.urlencode(params)
     response = json.loads(urllib.urlopen(url).read())
     results = response['result']
 
     return results
 
-def get_freebase_topic(query):
+def get_topic(query):
     '''Takes a mid or id and returns associated topic'''
     if query is None:
         return None
