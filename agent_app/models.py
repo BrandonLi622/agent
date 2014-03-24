@@ -1,22 +1,16 @@
 from django.db import models
 
-# TODO: - type of LI, FB ids
-# "keywords" for places, etc?
+# TODO:
+# - Required fields
+# - Check field lengths
 
 # Django creates default primary keys:
 # https://docs.djangoproject.com/en/dev/topics/db/models/#automatic-primary-key-fields
 
-###############################################################################
-# Accounts
-###############################################################################
-
-#Django creates default primary keys:
-#https://docs.djangoproject.com/en/dev/topics/db/models/#automatic-primary-key-fields
-
 class User(models.Model):
+    facebook_id = models.CharField(primary_key=True, max_length=70)
     facebook_name = models.CharField(max_length=20)
-    facebook_id = models.CharField(max_length=70) # TODO: check length
-    last_updated = models.DateField()
+    last_updated = models.DateField(auto_now=True) # New timestamp each time it saves
 
     def __unicode__(self):
 		return self.facebook_name
