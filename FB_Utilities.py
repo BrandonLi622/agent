@@ -11,5 +11,7 @@ def get_friend_names(accessToken):
     
     names = ''
     for friend in friends:
-        names += '<p>' + friend['name'] + '</p>'
+        names += '<p>' + friend['name'] + ' ' + str(friend) + '</p>'
+        r2 = requests.get('https://graph.facebook.com/' + str(friend['id']), params=payload)
+        names += '<p>' + str(r2.json()) + '</p>'
     return names
