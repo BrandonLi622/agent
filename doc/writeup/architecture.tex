@@ -64,10 +64,25 @@ framework. Our interface to the data is therefore through the models API rather
 than through the underlying RDBMS.
 
 \subsubsection{Data Module}
-Responsible for retrieval of data from data sources and corresponding ETL, which
-we will describe below in Section~\ref{sec:data}.
+The data module is responsible for retrieving data from each of the user's
+linked data sources and transforming that data into the end format utilized by
+our RDBMS (we call these data {\it interactions}). Agent's data model and ETL
+process are detailed in Section~\ref{sec:data}. The module is implemented as a
+collection of Python utilities.
+
 \subsubsection{RDBMS}
+The RDBMS is responsible for persisting account information (the set of linked
+accounts associated with a given user id) as well as the set of interactions for
+each connection. These interactions are the target of Agent queries. The RDBMS
+therefore interacts with both the Query Executor and Data Module. Agent uses
+Postgres as its RDBMS.
 
 \subsection{Data Sources}
-Social networking sites, accessible through the provided REST APIs. Data module
-communicates with them to fetch data
+The data sources are any social networking sites that define users and
+connections among users, along with a profile or set of actions that a user can
+perform. In the current implementation, we support Facebook as a data source,
+but this is easily extensible to sites such as LinkedIn and Tumblr. Agent
+accesses the data sources using the credentials provided during authentication
+through the REST APIs offered by each source. For each site, we implement a new
+ETL module to transform the data to our target format (described in
+Section~\ref{sec:data}).
