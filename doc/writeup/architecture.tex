@@ -37,6 +37,7 @@ composed of a number of modules, most of which are built into the application
 models and others of which are implemented as standalone utilities.
 
 \subsubsection{Query Parser}
+\label{sec:query-parser}
 The query parser receives text queries from the web client and resolves them
 into sets of entities through a term extraction process. At a high level, it
 identifies tags by measuring the likelihood that the words in the query co-occur
@@ -54,7 +55,7 @@ see this as more of a linguistics problem, so we leave it as a potential
 extension of the current system.
 
 \subsubsection{Query Executor}
-The query executer receives a set of entities from the Query Parser and then
+The query executer receives a set of entities from the query parser and then
 generates the database queries necessary to `score' each connection in the
 user's social network.  It then returns the $N$ (a user-configurable parameter)
 connections with the highest score.  The score corresponds to the likelihood
@@ -76,7 +77,7 @@ collection of Python utilities.
 The RDBMS is responsible for persisting account information (the set of linked
 accounts associated with a given user id) as well as the set of interactions for
 each connection. These interactions are the target of Agent queries. The RDBMS
-therefore interacts with both the Query Executor and Data Module. Agent uses
+therefore interacts with both the query executor and data module. Agent uses
 Postgres as its RDBMS.
 
 \subsection{Data Sources}
