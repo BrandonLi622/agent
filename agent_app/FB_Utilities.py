@@ -11,7 +11,10 @@ def get_friend_names(accessToken):
     
     names = ''
     for friend in friends:
-        names += '<p>' + friend['name'] + ' ' + str(friend) + '</p>'
+        #names += '<p>' + friend['name'] + ' ' + str(friend) + '</p>'
         r2 = requests.get('https://graph.facebook.com/' + str(friend['id']), params=payload)
-        names += '<p>' + str(r2.json()) + '</p>'
+        friend_dict = r2.json()
+        
+        if 'hometown' in friend_dict:
+            names += '<p>' + (r2.json()['name']).encode('utf-8') + ": " + (r2.json()['hometown']['name']).encode('utf-8') + '</p>'
     return names
