@@ -20,6 +20,7 @@ class FreebaseTest(TestCase):
     def test_get_topic_mid(self):
         topic = fb.get_topic('/m/0k8z')
 
+
     def test_get_topic_id(self):
         topic = fb.get_topic('/book/publishing_company')
         self.assertEqual(topic['property']['/type/object/mid']['values'][0]['text'],
@@ -37,3 +38,7 @@ class FreebaseTest(TestCase):
         user.save()
         fb.add_interaction(user, Profile, ['apple', 'Bob Marley'])
         user.delete()
+'''
+class RecommenderTest(TestCase):
+    def null():
+        pass'''

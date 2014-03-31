@@ -15,6 +15,37 @@ TOPICS_URL = 'https://www.googleapis.com/freebase/v1/topic'
 
 FREEBASE_MID_REGEX = r'^\/m\/\w+$'
 
+#takes a freebase entity and returns its parent's mid
+#-Brandon
+def get_notable_type(topic):
+    mid = topic['mid']
+    id = topic['id']
+    name = topic['name']
+    
+    notable_type = topic['notable']['id']
+                
+    if re.search(FREEBASE_MID_REGEX, notable_type):
+    # The 'notable' field was a related entity, so look
+    # up the original entity and extract notable type
+        topic = get_topic(mid)
+        notable_types = topic['property']['/common/topic/notable_types']['values']
+        if len(notable_types) == 0:
+            notable_type = None
+        else:
+            notable_type = notable_types[0]['id']
+
+    return notable_type
+
+def get_type_mid(topic):
+    return id_to_mid(get_notable_type(topic))
+
+def get_domain_mid(topic):
+    notable_type = get_notable_type(topic)
+    notable_domain = '/' + notable_type.split('/')[1]
+    domain = id_to_mid(notable_domain)
+    return domain
+
+
 def add_interaction(user, source_type, entities,
         site_name='facebook'):
     '''Store a given interaction represented by a facebook user_id, source type
@@ -25,21 +56,9 @@ def add_interaction(user, source_type, entities,
         mid = topic['mid']
         id = topic['id']
         name = topic['name']
-
-        notable_type = topic['notable']['id']
-        if re.search(FREEBASE_MID_REGEX, notable_type):
-            # The 'notable' field was a related entity, so look
-            # up the original entity and extract notable type
-            topic = get_topic(mid)
-            notable_types = topic['property']['/common/topic/notable_types']['values']
-            if len(notable_types) == 0:
-                notable_type = None
-            else:
-                notable_type = notable_types[0]['id']
-
+        notable_type = get_notable_type(topic) #id_to_mid(notable_type)
         type = id_to_mid(notable_type)
-        notable_domain = '/' + notable_type.split('/')[1]
-        domain = id_to_mid(notable_domain)
+        domain = get_domain_mid(topic)
 
         # Create object of type source type
         interaction = source_type(user_id=user,

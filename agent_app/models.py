@@ -8,14 +8,19 @@ from django.db import models
 # https://docs.djangoproject.com/en/dev/topics/db/models/#automatic-primary-key-fields
 
 class User(models.Model):
+    objects = models.Manager() #Necessary to perform queries
+
     facebook_id = models.CharField(primary_key=True, max_length=70)
     facebook_name = models.CharField(max_length=20)
     last_updated = models.DateField(auto_now=True) # New timestamp each time it saves
 
+
     def __unicode__(self):
-		return self.facebook_name
+	return self.facebook_name
 
 class SiteInteraction(models.Model):
+
+    
     user_id = models.ForeignKey(User) # Defaults to DELETE CASCADE
 
     site_name = models.CharField(max_length=20)
@@ -27,7 +32,7 @@ class SiteInteraction(models.Model):
     freebase_domain = models.CharField(max_length=20)
 
     def __unicode__(self):
-		return self.freebase_id
+	return self.freebase_id
 
     # See: https://docs.djangoproject.com/en/dev/topics/db/models/#abstract-base-classes
     class Meta:
@@ -35,6 +40,8 @@ class SiteInteraction(models.Model):
 
 # In the event we want to score them differently by type
 class Profile(SiteInteraction):
+    objects = models.Manager() #Necessary to perform queries
+
     pass
 
 class Location(SiteInteraction):

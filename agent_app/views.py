@@ -4,9 +4,41 @@ import string
 import requests
 import json
 
-import FB_Utilities
+from agent_app.models import SiteInteraction, Profile, User
+import agent_app.recommender as rec
+import agent_app.FB_Utilities as FB_Utilities
+import agent_app.freebase as fb
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+
+#This is a hack
+def tests(request):
+    entities = fb.entities_to_topics(["apple", "cherry", "mango"])
+    html = ""
+    for i in entities:
+        parent_mid = fb.get_type_mid(i)
+        html = html + "<p>" + str(i) + "AND" + str(parent_mid) + "</p>"
+    
+    #hardcoded test
+    user = User.objects.all().filter(facebook_id = "1000")[0]
+    
+    fb.add_interaction(user,Profile,["apple", "cherry", "mango"])
+    entries = rec.get_friend_entries("1000")
+    entity = fb.entities_to_topics(["cherry"])[0]
+    
+    #friend_score = rec.score_friend([entity], "1000")
+    recs = rec.recommend_n_friends(1, [entity], ["1000"])
+    #score = rec.score_entity(entity, entries)
+    html = html + "<p>Entity is: " + str(entity) + "</p>"
+    
+    html = html + "<p>Recs are:</p>"
+    index = 1
+    for r in recs:
+        html = html + "<p>" + str(index) + ": " + r + "</p>"
+        index += 1
+    
+    return HttpResponse(html)
+
 
 def fb_login(request):
     f = open(os.path.join(os.path.dirname(__file__), 'FB-Login.html'), 'r')
