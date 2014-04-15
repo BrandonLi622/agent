@@ -1,17 +1,17 @@
 #import agent_app.models
 import random
 import agent_app.freebase as fb
-from agent_app.models import SiteInteraction, Profile, User
+from agent_app.models import SiteInteraction, Profile, User, TermFrequency
 import logging
+from django.db.models import Sum
 
 
 #for a friend_id get all of the entries in SiteInteraction associated with it
 def get_friend_entries(friend_id):
     
     #should be unique, assume there's an answer
-    user = User.objects.all().filter(facebook_id = friend_id)[0]
-        
-    s = Profile.objects.all().filter(user_id = user)
+    user = User.objects.get(facebook_id = friend_id)
+    s = Profile.objects.filter(user_id = user)
     return s
 
 #for a given entity, return a score based on the current user
@@ -23,21 +23,34 @@ def score_entity(search_entity, friend_entries):
     #logging.warning(str(friend_entries))
     #logging.warning(str(search_entity))
     
+    mid = search_entity['mid']
+    type_mid = fb.get_type_mid(search_entity)
+    domain_mid = fb.get_domain_mid(search_entity)
+    
     #Points for matching mid (or category mid, do it recursively)
     for db_entity in friend_entries:                
-        if search_entity['mid'] == db_entity.freebase_mid:
+        if mid == db_entity.freebase_mid:
             score += 3.0
-            
-        #logging.warning(str(db_entity.freebase_type))
-        #logging.warning(str(fb.get_type_mid(search_entity)))
-        
-        #check if this works
-        if fb.get_type_mid(search_entity) == db_entity.freebase_type:
+        elif type_mid == db_entity.freebase_type:
             score += 2.0
-            
-        if fb.get_domain_mid(search_entity) == db_entity.freebase_domain:
+        elif domain_mid == db_entity.freebase_domain:
             score += 1.0
-        
+    
+    #scale the score by how infrequent it is
+    #assume entity is in the table because should be added by point of recommend_n_friends
+    
+    logging.warning("Count: " + str(score))
+    
+    tf, is_new = TermFrequency.objects.get_or_create(freebase_mid = mid)
+    logging.warning("Frequency is: " + str(tf.freq_count))
+    
+    total_count = TermFrequency.objects.aggregate(Sum('freq_count'))['freq_count__sum']
+    
+    freq_scaling = 1.0 * (total_count + 1.0) / (int(tf.freq_count) + 1)
+    score *= freq_scaling
+    
+    logging.warning("Frequency scaled score: " + str(score))
+    
     return score
 
 #For now do a dumb algorithm which involves aggregating
@@ -50,9 +63,18 @@ def score_friend(entity_list, friend_id):
         friend_entries = get_friend_entries(friend_id)
         entity_scores.append(score_entity(entity_list[i], friend_entries))
     
-    #takes the average score (maybe what we want is the max or something)
-    overall_score = reduce(lambda x, y: 1.0 * x + y, entity_scores) / len(entity_scores)
+    #Bonus points for more matches
+    num_matches = 0
+    for e in entity_scores:
+        if e > 0.0:
+            num_matches += 1
     
+    scaling = 1.0 * num_matches / len(entity_scores)
+    
+    #takes the average score (maybe what we want is the max or something)
+    overall_score = scaling * reduce(lambda x, y: 1.0 * x + y, entity_scores) / len(entity_scores)
+        
+    logging.warning("Final score: " + str(overall_score))
     return (friend_id, overall_score)
 
 #friend_list is a list of id's
@@ -70,12 +92,16 @@ def recommend_n_ids(n, entity_list, friend_list):
     return recommendations
 
 def recommend_n_friends(n, entity_list, friend_list):
+    #should I do this here or elsewhere?
+    
+    #NOTE: This really should be topic list
+    fb.add_counts(entity_list)
+    
     ids = recommend_n_ids(n, entity_list, friend_list)
     logging.warning(str(ids))
-    logging.warning(str(User.objects.all().filter(facebook_id = '1000')))
+    logging.warning(str(User.objects.get(facebook_id = '1000')))
     
-    
-    recs = [User.objects.all().filter(facebook_id = i)[0].facebook_name for i in ids]
+    recs = [User.objects.get(facebook_id = i).facebook_name for i in ids]
     return recs
 
 
