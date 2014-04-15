@@ -7,6 +7,17 @@ from django.db import models
 # Django creates default primary keys:
 # https://docs.djangoproject.com/en/dev/topics/db/models/#automatic-primary-key-fields
 
+
+class TermFrequency(models.Model):
+    objects = models.Manager() #Necessary to perform queries
+    
+    freebase_mid = models.CharField(max_length=20)
+    freq_count = models.IntegerField(default=0)
+    
+    def __unicode__(self):
+	return self.freebase_mid
+
+
 class User(models.Model):
     objects = models.Manager() #Necessary to perform queries
 
@@ -19,12 +30,8 @@ class User(models.Model):
 	return self.facebook_name
 
 class SiteInteraction(models.Model):
-
-    
     user_id = models.ForeignKey(User) # Defaults to DELETE CASCADE
-
     site_name = models.CharField(max_length=20)
-
     freebase_mid = models.CharField(max_length=20)
     freebase_id = models.CharField(max_length=100)
     freebase_name = models.CharField(max_length=100)
@@ -41,7 +48,6 @@ class SiteInteraction(models.Model):
 # In the event we want to score them differently by type
 class Profile(SiteInteraction):
     objects = models.Manager() #Necessary to perform queries
-
     pass
 
 class Location(SiteInteraction):
@@ -49,3 +55,5 @@ class Location(SiteInteraction):
 
 class Action(SiteInteraction):
     pass
+
+

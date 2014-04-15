@@ -1,7 +1,8 @@
 import json
 import urllib
 import re
-import agent_app.models
+from agent_app.models import *
+import logging
 
 # TODO:
 # - Error handling for topic/search
@@ -46,6 +47,20 @@ def get_domain_mid(topic):
     return domain
 
 
+def add_count(topic):
+    mid = topic['mid']
+    tf, is_created = TermFrequency.objects.get_or_create(freebase_mid = mid)
+
+    logging.warning(str(tf))
+    tf.freq_count = tf.freq_count + 1
+    
+    logging.warning("Adding count: " + str(tf.freq_count))
+    tf.save()
+    
+def add_counts(topics):
+    for topic in topics:
+        add_count(topic)
+
 def add_interaction(user, source_type, entities,
         site_name='facebook'):
     '''Store a given interaction represented by a facebook user_id, source type
@@ -88,6 +103,8 @@ def id_to_mid(id):
     if topic is None:
         return None
 
+    #logging.warning(str(topic))
+
     mids = topic['property']['/type/object/mid']['values']
     if len(mids) == 0:
         return None
@@ -100,7 +117,7 @@ def search(query):
 
     params = { 'query': query, 'key': API_KEY }
     url = SEARCH_URL + '?' + urllib.urlencode(params)
-    response = json.loads(urllib.urlopen(url).read())
+    response = json.loads(urllib.urlopen(url).read())    
     results = response['result']
 
     return results
@@ -113,5 +130,9 @@ def get_topic(query):
     params = { 'key': API_KEY }
     url = TOPICS_URL + query + '?' +  urllib.urlencode(params)
     response = json.loads(urllib.urlopen(url).read())
+
+    #logging.warning(query)
+    #logging.warning(str(response))
+
 
     return response
