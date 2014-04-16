@@ -21,12 +21,16 @@ def score_entity(search_entity, friend_entries):
     score = 0.0
     
     #logging.warning(str(friend_entries))
-    #logging.warning(str(search_entity))
+    logging.warning(str(search_entity))
     
     mid = search_entity['mid']
+
+    #What if these two things fail?
     type_mid = fb.get_type_mid(search_entity)
     domain_mid = fb.get_domain_mid(search_entity)
     
+    logging.warning("Marker for: " + str(search_entity))
+
     #Points for matching mid (or category mid, do it recursively)
     for db_entity in friend_entries:                
         if mid == db_entity.freebase_mid:
@@ -59,9 +63,12 @@ def score_entity(search_entity, friend_entries):
 def score_friend(entity_list, friend_id):
     entity_scores = []
     for i in range(0,len(entity_list)):
+        logging.warning("Scoring an entity: " + str(i))
         #Probably not the best way to do this, passing a huge argument
         friend_entries = get_friend_entries(friend_id)
         entity_scores.append(score_entity(entity_list[i], friend_entries))
+    
+    logging.warning("Entity scores: " + str(entity_scores))
     
     #Bonus points for more matches
     num_matches = 0
@@ -84,6 +91,7 @@ def recommend_n_ids(n, entity_list, friend_list):
     friend_scores=[]
     
     for i in range(0,len(friend_list)):
+        logging.warning("Going through loop: " + str(i))
         friend_scores.append(score_friend(entity_list, friend_list[i]))
     
     friend_scores.sort(key=lambda tup: tup[1], reverse=True)
@@ -98,6 +106,7 @@ def recommend_n_friends(n, entity_list, friend_list):
     fb.add_counts(entity_list)
     
     ids = recommend_n_ids(n, entity_list, friend_list)
+    
     logging.warning(str(ids))
     logging.warning(str(User.objects.get(facebook_id = '1000')))
     
