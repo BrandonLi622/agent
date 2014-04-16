@@ -4,10 +4,17 @@
 <div id="fb-root"></div>
 
 <script>
-  function tryLogin2() {
-        document.getElementById('test_p').innerHTML = "clicked2";
 
+  function checkQuery() {
+    var url = document.URL;    
+    var results = url.match(/query/gi);
+    
+    if (results.length > 0) {
+      return true;
+    }
+    return false;
   }
+  
   
   window.fbAsyncInit = function() {
   FB.init({
@@ -26,6 +33,18 @@
   FB.Event.subscribe('auth.authResponseChange', function(response) {
     // Here we specify what we do with the response anytime this event occurs. 
     if (response.status === 'connected') {
+      document.getElementById("SearchQueryForm").hidden = false;
+      
+      /*
+      if (checkQuery()) {  
+        document.getElementById("SearchResults").hidden = false;
+      }
+      else {
+        document.getElementById("SearchResults").hidden = true;
+      }
+      */
+      
+
       // The response object is returned with a status field that lets the app know the current
       // login status of the person. In this case, we're handling the situation where they 
       // have logged in to the app.
@@ -38,7 +57,7 @@
           //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
 
 
-    window.location.replace('../home/' + response.authResponse.accessToken);
+    //window.location.replace('../home/' + response.authResponse.accessToken);
       
     } else if (response.status === 'not_authorized') {
       // In this case, the person is logged into Facebook, but not into the app, so we call
@@ -89,4 +108,24 @@
   Below we include the Login Button social plugin. This button uses the JavaScript SDK to
   present a graphical Login button that triggers the FB.login() function when clicked. --->
 
-<fb:login-button data-scope="friends_about_me, friends_interests, friends_likes, friends_hometown" show-faces="true" width="200" max-rows="1"></fb:login-button>
+<fb:login-button auto_logout_link=true data-scope="friends_about_me, friends_interests, friends_likes, friends_hometown" show-faces="true" width="200" max-rows="1"></fb:login-button>
+
+<form hidden=true id="SearchQueryForm" method="get">
+  Search Query: <input type="text" name="query">
+</form>
+
+{% if rec_list and search_string %}
+<div id="SearchResults">
+  <p id="SearchResultsLabel">Search Results for: {{ search_string }}</p>
+  <ol>
+  {% for rec in rec_list %}
+        <li>{{ rec }}</li>
+  {% endfor %}
+  </ol>
+</div>
+{% endif %}
+
+</body>
+</html>
+
+

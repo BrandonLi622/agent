@@ -3,6 +3,10 @@ import os
 import string
 import requests
 import json
+import logging
+
+
+from django.template import Context, loader
 
 from agent_app.models import SiteInteraction, Profile, User
 import agent_app.recommender as rec
@@ -14,12 +18,13 @@ from django.http import HttpResponseRedirect
 
 #This is a hack
 def tests(request):
+    '''
     entities = fb.entities_to_topics(["apple", "cherry", "mango"])
     html = ""
     for i in entities:
         parent_mid = fb.get_type_mid(i)
         html = html + "<p>" + str(i) + "AND" + str(parent_mid) + "</p>"
-    
+    '''
     #hardcoded test
     #user = User.objects.all().filter(facebook_id = "1000")[0]
     #fb.add_interaction(user,Profile,["apple", "cherry", "mango"])
@@ -42,11 +47,49 @@ def tests(request):
     
     return HttpResponse(html)
 
+def search(request):
+    search_string= ""
+    rec_list= []
+    
+    logging.warning("Hello there")
+
+    try:
+        search_string = request.GET['query']
+    
+        #Need to break up the search_string into multiple entities using Yahoo
+        #for now just use this
+        search_keys = [search_string]
+
+        logging.warning("Did a search: " + search_string);
+        rec_list = integrated.recommend(search_keys)
+    
+    #f = open(os.path.join(os.path.dirname(__file__), 'FB-Login.html'), 'r')
+    #html = f.read()
+    except Exception:
+        pass
+    
+    t = loader.get_template('FB-Login.html')
+    c = Context({
+        'rec_list': rec_list,
+        'search_string' : search_string
+    })
+
+    logging.warning(str(rec_list))
+    
+    return HttpResponse(t.render(c))
+
 
 def fb_login(request):
-    f = open(os.path.join(os.path.dirname(__file__), 'FB-Login.html'), 'r')
-    html = f.read()
-    return HttpResponse(html)
+    logging.warning("Did a log-in");
+
+    rec_list = []
+    
+    t = loader.get_template('FB-Login.html')
+    c = Context({
+        'rec_list': rec_list,
+    })
+    
+    return HttpResponse(t.render(c))
 
 def logged_in(request, accessToken):
     payload = {'access_token': accessToken}
