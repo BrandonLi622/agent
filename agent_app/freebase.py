@@ -24,7 +24,9 @@ def get_notable_type(topic):
     name = topic['name']
     
     notable_type = topic['notable']['id']
-                
+         
+    logging.warning("marker")
+       
     if re.search(FREEBASE_MID_REGEX, notable_type):
     # The 'notable' field was a related entity, so look
     # up the original entity and extract notable type

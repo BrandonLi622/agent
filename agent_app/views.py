@@ -50,11 +50,13 @@ def tests(request):
 def search(request):
     search_string= ""
     rec_list= []
+    access_token=""
     
     logging.warning("Hello there")
 
     try:
         search_string = request.GET['query']
+        access_token = request.GET['access_token']
     
         #Need to break up the search_string into multiple entities using Yahoo
         #for now just use this
@@ -71,13 +73,47 @@ def search(request):
     t = loader.get_template('FB-Login.html')
     c = Context({
         'rec_list': rec_list,
-        'search_string' : search_string
+        'search_string' : search_string,
+        'access_token' : access_token
     })
 
     logging.warning(str(rec_list))
     
     return HttpResponse(t.render(c))
 
+def ajax_search(request):
+    search_string= ""
+    rec_list= []
+    access_token=""
+    
+    logging.warning("Hello there")
+
+    try:
+        search_string = request.GET['query']
+        access_token = request.GET['access_token']
+    
+        #Need to break up the search_string into multiple entities using Yahoo
+        #for now just use this
+        search_keys = [search_string]
+
+        logging.warning("Did a search: " + search_string);
+        rec_list = integrated.recommend(search_keys)
+    
+    #f = open(os.path.join(os.path.dirname(__file__), 'FB-Login.html'), 'r')
+    #html = f.read()
+    except Exception:
+        pass
+    
+    t = loader.get_template('SearchResults.html')
+    c = Context({
+        'rec_list': rec_list,
+        'search_string' : search_string,
+        'access_token' : access_token
+    })
+
+    logging.warning(str(rec_list))
+    
+    return HttpResponse(t.render(c))
 
 def fb_login(request):
     logging.warning("Did a log-in");

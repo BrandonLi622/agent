@@ -1,0 +1,9 @@
+<p id="SearchResultsLabel">Search Results for: {{ search_string }}</p>
+  <ol>
+  {% for rec in rec_list %}
+        <li>
+          <a href="https://www.facebook.com/{{ rec.1 }}">{{ rec.0 }}</a>
+          <img height="35" width="35" name="thumbnail" src="https://graph.facebook.com/{{ rec.1 }}/picture?access_token={{ access_token }}&type=small"/>
+        </li>
+  {% endfor %}
+  </ol>

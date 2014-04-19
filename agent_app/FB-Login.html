@@ -3,6 +3,11 @@
 <body>
 <div id="fb-root"></div>
 
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tauri">
+<link rel="stylesheet" type="text/css" media="all" href="/static/styles/styles.css">
+
+
+<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js'></script>
 <script>
 
   function checkQuery() {
@@ -13,8 +18,7 @@
       return true;
     }
     return false;
-  }
-  
+  }  
   
   window.fbAsyncInit = function() {
   FB.init({
@@ -34,7 +38,9 @@
     // Here we specify what we do with the response anytime this event occurs. 
     if (response.status === 'connected') {
       document.getElementById("SearchQueryForm").hidden = false;
-      
+
+      //alert(response.authResponse.access_token);
+      //document.getElementById("Greeting").innerHTML = response.authResponse.access_token;      
       /*
       if (checkQuery()) {  
         document.getElementById("SearchResults").hidden = false;
@@ -56,7 +62,18 @@
 
           //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
 
-
+    var access_token = response.authResponse.accessToken;
+    var fb_id = response.authResponse.userID;
+    var form = document.forms['SearchQueryForm'];
+    form.access_token.value=access_token;
+    
+    FB.api('/me', function(response) {
+      //alert("Name: "+ response.name + "\nFirst name: "+ response.first_name + "ID: "+response.id);
+      //var img_link = "http://graph.facebook.com/"+response.id+"/picture"
+      
+      document.getElementById('login_welcome').innerHTML = "Welcome, " + response.name + "!";
+    });
+    
     //window.location.replace('../home/' + response.authResponse.accessToken);
       
     } else if (response.status === 'not_authorized') {
@@ -81,6 +98,8 @@
     }
   });
   };
+  
+
 
   // Load the SDK asynchronously
   (function(d){
@@ -101,29 +120,79 @@
   }
   
   
+  
+$( document ).ready(function() {
+//alert( "ready!" );
+
+$("#query").keyup(function(event) {
+  if (event.which == 13) {
+    //this.form.submit();
+    //$("#SearchQueryForm").submit();
+    $('#Loading').show();
+    $('#SearchResults').hide();
+
+    
+    $.ajax({
+      url: '../ajax_search/',
+      type: 'get',
+      dataType: 'html',
+      data: $('#SearchQueryForm').serialize(),
+      success:
+        function(response) {
+          $('#Loading').hide();
+          $('#SearchResults').show();
+          $('#SearchResults').html(response);
+          
+        }
+    });
+    
+  };
+});
+
+  
+});
 
 </script>
+
+<div id="HeaderBar">
+  <div id="logo">
+      <img src="/static/images/Agent_Logo_White.png" />
+  </div>
+  <div id="login_info">
+    <div id="login_welcome">Welcome, guest!</div>
+    <fb:login-button id="fb_button" auto_logout_link=true data-scope="friends_about_me, friends_interests, friends_likes, friends_hometown" show-faces="false" width="200" max-rows="1"></fb:login-button>
+  </div>
+
+</div>
 
 <!--
   Below we include the Login Button social plugin. This button uses the JavaScript SDK to
   present a graphical Login button that triggers the FB.login() function when clicked. --->
 
-<fb:login-button auto_logout_link=true data-scope="friends_about_me, friends_interests, friends_likes, friends_hometown" show-faces="true" width="200" max-rows="1"></fb:login-button>
+<div id="NonHeader">
+  <form hidden=true id="SearchQueryForm" method="get" action="../agent">
+      Search Query: <input type="text" id="query" name="query"/>
+      <input type="text" name="access_token" id="access_token" hidden=true />
+  </form>
+  
+  <div id="Loading" hidden="true">
+    <p id="LoadingResultsText">Loading results</p>
+    <img id="LoadingResultsImg" title="Loading results" src="/static/images/ajax-loader.gif" />
+  </div>
+  
+  <div id="SearchResults" hidden="true">
+    <p id="SearchResultsLabel">Search Results for: {{ search_string }}</p>
+    <ol>
+    {% for rec in rec_list %}
+          <li>
+            <a href="https://www.facebook.com/{{ rec.1 }}">{{ rec.0 }}</a>
+            <img height="35" width="35" name="thumbnail" src="https://graph.facebook.com/{{ rec.1 }}/picture?access_token={{ access_token }}&type=small"/>
+          </li>
+    {% endfor %}
+    </ol>
+  </div>
 
-<form hidden=true id="SearchQueryForm" method="get">
-  Search Query: <input type="text" name="query">
-</form>
-
-{% if rec_list and search_string %}
-<div id="SearchResults">
-  <p id="SearchResultsLabel">Search Results for: {{ search_string }}</p>
-  <ol>
-  {% for rec in rec_list %}
-        <li>{{ rec }}</li>
-  {% endfor %}
-  </ol>
 </div>
-{% endif %}
 
 </body>
 </html>

@@ -27,9 +27,10 @@ def score_entity(search_entity, friend_entries):
 
     #What if these two things fail?
     type_mid = fb.get_type_mid(search_entity)
+    logging.warning("Marker for: " + str(search_entity))
+
     domain_mid = fb.get_domain_mid(search_entity)
     
-    logging.warning("Marker for: " + str(search_entity))
 
     #Points for matching mid (or category mid, do it recursively)
     for db_entity in friend_entries:                
@@ -111,7 +112,9 @@ def recommend_n_friends(n, entity_list, friend_list):
     logging.warning(str(User.objects.get(facebook_id = '1000')))
     
     recs = [User.objects.get(facebook_id = i).facebook_name for i in ids]
-    return recs
+    
+    #Returns both the names and the id's, so that we can visit their pages
+    return zip(recs, ids)
 
 
 #facebook_ids = [1,2,3,4,5]
