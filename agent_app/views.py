@@ -142,6 +142,8 @@ def logged_in(request, accessToken):
         return HttpResponseRedirect('../../agent')
         #return HttpResponse(html)
 
+def ajax_aboutpage(request):
+    return HttpResponse(loader.get_template('About.html'));
 
 def bad_address(request):
     return HttpResponseRedirect('../agent')

@@ -9,7 +9,7 @@
 
 
 
-<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js'></script>
+<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
 <script>
 
   function checkQuery() {
@@ -20,7 +20,7 @@
       return true;
     }
     return false;
-  }  
+  }
   
   window.fbAsyncInit = function() {
   FB.init({
@@ -29,7 +29,7 @@
     cookie     : true, // enable cookies to allow the server to access the session
     xfbml      : true  // parse XFBML
   });
-  
+
 
 
   // Here we subscribe to the auth.authResponseChange JavaScript event. This event is fired
@@ -129,18 +129,34 @@
 $( document ).ready(function() {
 //alert( "ready!" );
 
+
+document.getElementById('AboutPageHolder').innerHTML =
+        '<object type="type/html" data="/static/html/About.html"><\/object>';
+
+$("#about_page_link").on("click", function() {
+          $('#NonHeader').hide();
+          $('#AboutPageHolder').show();
+});
+
+$("#logo").on("click", function() {
+          $('#AboutPageHolder').hide();
+          $('#NonHeader').show();
+});
+
 $("#query").keyup(function(event) {
   if (event.which == 13) {
 
     //Update the style for the search box
-    var fileref=document.createElement("link")
-    fileref.setAttribute("rel", "stylesheet")
-    fileref.setAttribute("type", "text/css")
-    fileref.setAttribute("href", "/static/styles/searchbox_2.css")
-    document.getElementsByTagName("head")[0].appendChild(fileref)
+    var fileref=document.createElement("link");
+    fileref.setAttribute("rel", "stylesheet");
+    fileref.setAttribute("type", "text/css");
+    fileref.setAttribute("href", "/static/styles/searchbox_2.css");
+    document.getElementsByTagName("head")[0].appendChild(fileref);
     
-    $('#Loading').show();
     $('#SearchResults').hide();
+    var act = function() {$('#Loading').show();};
+    setTimeout(act, 100);
+
     
     $.ajax({
       url: '../ajax_search/',
@@ -158,40 +174,7 @@ $("#query").keyup(function(event) {
   };
 });
 
-$("#query_searched").keyup(function(event) {
-  if (event.which == 13) {
-    //this.form.submit();
-    //$("#SearchQueryForm").submit();
-    $('#Loading').show();
-    $('#SearchResults').hide();
 
-    //$('#NonHeader').hide();
-    //$('#NonHeader_Searched').show();
-  
-  //Load in CSS
-    var fileref=document.createElement("link")
-    fileref.setAttribute("rel", "stylesheet")
-    fileref.setAttribute("type", "text/css")
-    fileref.setAttribute("href", filename)
-    document.getElementsByTagName("head")[0].appendChild(fileref)
-    
-    
-    
-    $.ajax({
-      url: '../ajax_search/',
-      type: 'get',
-      dataType: 'html',
-      data: $('#SearchQueryForm_Searched').serialize(),
-      success:
-        function(response) {
-          $('#Loading').hide();
-          $('#SearchResults').show();
-          $('#SearchResults').html(response);
-        }
-    });
-    
-  };
-});
 
   
 });
@@ -199,9 +182,15 @@ $("#query_searched").keyup(function(event) {
 </script>
 
 <div id="HeaderBar">
-  <div id="logo">
-      <img src="/static/images/Agent_Logo_White.png" />
+  <img id="logo" src="/static/images/Agent_Logo_White.png" />
+  
+  <div id="menu">
+    <ul id="menu_options">
+      <li type="menu_option"><a onclick="" id="about_page_link" type="menu_link">About</a></li>
+      <li type="menu_option"><a type="menu_link" href="mailto:test@agent.com" >Contact</a></li>
+    </ul>
   </div>
+  
   <div id="login_info">
     <div id="login_welcome">Welcome, guest!</div>
     <fb:login-button id="fb_button" auto_logout_link=true data-scope="friends_about_me, friends_interests, friends_likes, friends_hometown" show-faces="false" width="200" max-rows="1"></fb:login-button>
@@ -215,7 +204,12 @@ $("#query_searched").keyup(function(event) {
 
 <div id="NonHeader">
   <form hidden=true id="SearchQueryForm" method="get" action="../agent">
-      Search Query: <input type="text" id="query" name="query"/>
+      <select>
+        <option value="general">I want to learn about</option>
+        <option value="location">I want to plan a trip to</option>
+      </select>
+      <input type="text" id="query" name="query"/>
+      
       <input type="text" name="access_token" id="access_token" hidden=true />
   </form>
   
@@ -224,17 +218,10 @@ $("#query_searched").keyup(function(event) {
     <img id="LoadingResultsImg" title="Loading results" src="/static/images/ajax-loader.gif" />
   </div>
   
-  <div id="SearchResults" hidden="true">
-    <p id="SearchResultsLabel">Search Results for: {{ search_string }}</p>
-    <ol>
-    {% for rec in rec_list %}
-          <li>
-            <a href="https://www.facebook.com/{{ rec.1 }}">{{ rec.0 }}</a>
-            <img height="35" width="35" name="thumbnail" src="https://graph.facebook.com/{{ rec.1 }}/picture?access_token={{ access_token }}&type=small"/>
-          </li>
-    {% endfor %}
-    </ol>
-  </div>
+  <div id="SearchResults" hidden="true"></div>
+</div>
+
+<div hidden=true id="AboutPageHolder">
 </div>
 
 </body>
