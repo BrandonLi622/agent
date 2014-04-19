@@ -1,0 +1,25 @@
+#NonHeader {
+    /*width: 100%;
+    height: 100%;*/
+    padding-left: 40px;
+    padding-top: 40px;
+    margin-left: 0;
+    margin-right: auto;
+}
+
+#SearchQueryForm {
+    border: none;
+    padding: 0;
+    /*margin-left: 30%;
+    margin-right: 30%;*/
+}
+
+#Loading, #LoadingResultsText, #LoadingResultsImg {
+    /*margin-left: 30%;
+    margin-right: 30%;*/
+}
+
+#SearchResults {
+    /*margin-left: 30%;
+    margin-right: 30%;*/
+}
