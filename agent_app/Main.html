@@ -1,0 +1,18 @@
+<!doctype html>
+
+  <form hidden=true id="SearchQueryForm" method="get" action="../agent">
+      <select>
+        <option value="general">I want to learn about</option>
+        <option value="location">I want to plan a trip to</option>
+      </select>
+      <input type="text" id="query" name="query"/>
+      
+      <input type="text" name="access_token" id="access_token" hidden=true />
+  </form>
+  
+  <div id="Loading" hidden="true">
+    <p id="LoadingResultsText">Loading results</p>
+    <img id="LoadingResultsImg" title="Loading results" src="/static/images/ajax-loader.gif" />
+  </div>
+  
+  <div id="SearchResults" hidden="true"></div>

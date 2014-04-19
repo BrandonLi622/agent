@@ -10,6 +10,8 @@
 #SearchQueryForm {
     border: none;
     padding: 0;
+    margin-left: 0;
+    margin-right: auto;
     /*margin-left: 30%;
     margin-right: 30%;*/
 }
