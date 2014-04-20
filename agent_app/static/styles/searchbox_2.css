@@ -5,6 +5,17 @@
     padding-top: 40px;
     margin-left: 0;
     margin-right: auto;
+    width=50%;
+    float: left;
+}
+
+#InfoArea {
+    float: left;
+    border: 1px solid black;
+    margin-left: 150;
+    margin-top: 40;
+    padding: 30;
+    border-radius: 15px;
 }
 
 #SearchQueryForm {

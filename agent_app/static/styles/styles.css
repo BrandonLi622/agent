@@ -18,6 +18,7 @@ form, div {
 
 }
 
+
 [type=menu_option] {
     display: inline;
     padding:0.2em 0.6em;
@@ -27,11 +28,18 @@ form, div {
 [type=menu_link] {
     color:white;
     cursor: pointer;
-
 }
+
+
 
 a {
     text-decoration:none;
+}
+
+[type=search_result] {
+    text-decoration: blink;
+    cursor: pointer;
+    color: blue;
 }
 
 #HeaderBar {
