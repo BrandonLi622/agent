@@ -3,7 +3,7 @@
   {% for rec in rec_list %}
         <li>
           <img height="35" width="35" name="thumbnail" src="https://graph.facebook.com/{{ rec.1 }}/picture?access_token={{ access_token }}&type=small"/>
-          <a href="https://www.facebook.com/{{ rec.1 }}">{{ rec.0 }}</a>
+          <a onclick="clickedRec(this.id, this.name)" type="search_result" class="search_result" name="{{ rec.0 }}" id="{{ rec.1 }}">{{ rec.0 }}</a>
         </li>
   {% endfor %}
   </ol>

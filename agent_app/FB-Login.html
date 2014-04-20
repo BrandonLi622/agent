@@ -22,6 +22,14 @@
     return false;
   }
   
+  function clickedRec(id, name) {
+    document.getElementById('AboutPageHolder').hidden = true;
+    document.getElementById('profile_link').href = "https://facebook.com/" + id;
+    document.getElementById('profile_link').innerHTML = "Link to " + name + "'s profile";
+
+    document.getElementById('InfoArea').hidden = false;
+  }
+  
   window.fbAsyncInit = function() {
   FB.init({
     appId      : '676530749060261',
@@ -136,11 +144,13 @@ document.getElementById('AboutPageHolder').innerHTML =
 $("#about_page_link").on("click", function() {
           $('#NonHeader').hide();
           $('#AboutPageHolder').show();
+          $('#InfoArea').hide();
 });
 
 $("#logo").on("click", function() {
           $('#AboutPageHolder').hide();
           $('#NonHeader').show();
+
 });
 
 $("#query").keyup(function(event) {
@@ -202,26 +212,33 @@ $("#query").keyup(function(event) {
   Below we include the Login Button social plugin. This button uses the JavaScript SDK to
   present a graphical Login button that triggers the FB.login() function when clicked. --->
 
-<div id="NonHeader">
-  <form hidden=true id="SearchQueryForm" method="get" action="../agent">
-      <select>
-        <option value="general">I want to learn about</option>
-        <option value="location">I want to plan a trip to</option>
-      </select>
-      <input type="text" id="query" name="query"/>
-      
-      <input type="text" name="access_token" id="access_token" hidden=true />
-  </form>
-  
-  <div id="Loading" hidden="true">
-    <p id="LoadingResultsText">Loading results</p>
-    <img id="LoadingResultsImg" title="Loading results" src="/static/images/ajax-loader.gif" />
+<div id="PageFrame">
+  <div id="NonHeader">
+    <form hidden=true id="SearchQueryForm" method="get" action="../agent">
+        <select>
+          <option value="general">I want to learn about</option>
+          <option value="location">I want to plan a trip to</option>
+        </select>
+        <input type="text" id="query" name="query"/>
+        
+        <input type="text" name="access_token" id="access_token" hidden=true />
+    </form>
+    
+    <div id="Loading" hidden="true">
+      <p id="LoadingResultsText">Loading results</p>
+      <img id="LoadingResultsImg" title="Loading results" src="/static/images/ajax-loader.gif" />
+    </div>
+    
+    <div id="SearchResults" hidden="true"></div>
   </div>
   
-  <div id="SearchResults" hidden="true"></div>
-</div>
-
-<div hidden=true id="AboutPageHolder">
+  <div hidden=true id="InfoArea">
+    <p>Info Area Placeholder</p>
+    <a id=profile_link href="">Link to</a>
+  </div>
+  
+  <div hidden=true id="AboutPageHolder">
+  </div>
 </div>
 
 </body>
