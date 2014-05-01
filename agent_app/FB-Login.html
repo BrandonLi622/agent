@@ -84,6 +84,7 @@
     var fb_id = response.authResponse.userID;
     var form = document.forms['SearchQueryForm'];
     form.access_token.value=access_token;
+    form.user_id.value = fb_id
     
     FB.api('/me', function(response) {
       //alert("Name: "+ response.name + "\nFirst name: "+ response.first_name + "ID: "+response.id);
@@ -149,7 +150,7 @@ $( document ).ready(function() {
 
 
 document.getElementById('AboutPageHolder').innerHTML =
-        '<object type="type/html" data="/static/html/About.html"><\/object>';
+        '<object type="type/html" data="/static/html/About3.html"><\/object>';
 
 $("#about_page_link").on("click", function() {
           $('#NonHeader').hide();
@@ -238,6 +239,7 @@ $("#query").keyup(function(event) {
         <input type="text" id="query" name="query"/>
         
         <input type="text" name="access_token" id="access_token" hidden=true />
+        <input type="text" name="user_id" id="user_id" hidden=true />
     </form>
     
     <div id="Loading" hidden="true">

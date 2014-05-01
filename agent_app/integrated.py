@@ -18,3 +18,9 @@ def recommend(search_keys):
     logging.warning("Search entities: " + str(mid_tuples))
     recs = rec.recommend_n_friends(10, mid_tuples, ["1000", "2000"])
     return recs
+
+def num_updated_friends(user_id):
+    logging.warning("User's id: " + str(user_id))
+    friends_ids = ['1000', '2000']
+    #should really get all of the ids of user_id' friends
+    return FB_Utilities.num_updated(friends_ids)
