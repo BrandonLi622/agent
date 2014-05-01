@@ -16,5 +16,5 @@ def recommend(search_keys):
     logging.warning("in recommend")
     mid_tuples = fb.entities_to_mid_tuples(search_keys)
     logging.warning("Search entities: " + str(mid_tuples))
-    recs = rec.recommend_n_friends(3, mid_tuples, ["1000", "2000"])
+    recs = rec.recommend_n_friends(10, mid_tuples, ["1000", "2000"])
     return recs

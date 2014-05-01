@@ -77,11 +77,14 @@ def search(request):
     except Exception:
         pass
     
+    num_friends = "27"
+    
     t = loader.get_template('FB-Login.html')
     c = Context({
         'rec_list': rec_list,
         'search_string' : search_string,
-        'access_token' : access_token
+        'access_token' : access_token,
+        'n_friends' : num_friends
     })
 
     logging.warning(str(rec_list))
@@ -111,11 +114,16 @@ def ajax_search(request):
     except Exception:
         pass
     
+    num_friends = 27
+    
+    
     t = loader.get_template('SearchResults.html')
     c = Context({
         'rec_list': rec_list,
         'search_string' : search_string,
-        'access_token' : access_token
+        'access_token' : access_token,
+        'n_friends' : num_friends
+
     })
 
     logging.warning(str(rec_list))
