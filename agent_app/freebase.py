@@ -21,13 +21,24 @@ FREEBASE_MID_REGEX = r'^\/m\/\w+$'
 #-Brandon
 def get_notable_type(topic):
     mid = topic['mid']
-    id = topic['id']
+    logging.warning("topic is")
+    id = None
+    try:
+        id = topic['id']
+    except KeyError:
+        pass
     name = topic['name']
+    logging.warning("topic is")
+
 
     notable_type = None
     try:
+        logging.warning("Does it get here?")
         notable_type = topic['notable']['id']
     except KeyError:
+        pass
+    except Exception:
+        logging.warning("Different exception")
         pass
 
     logging.warning("marker")
@@ -38,16 +49,23 @@ def get_notable_type(topic):
     # The 'notable' field was a related entity, so look
     # up the original entity and extract notable type
         topic = get_topic(mid)
-        notable_types = topic['property']['/common/topic/notable_types']['values']
+        #logging.warning("topic is: " + str(topic))
+        
+        notable_types = []
+        try:
+            notable_types = topic['property']['/common/topic/notable_types']['values']
+        except KeyError:
+            pass
+
         if len(notable_types) == 0:
-            types = topic['property']['/type/object/types']['values']
+            types = topic['property']['/type/object/type']['values']
             if len(types) == 0:
                 notable_type = None
             else:
                 notable_type = types[0]['id']
         else:
             notable_type = notable_types[0]['id']
-
+    logging.warning("Notable type is: " + "test")
     return notable_type
 
 def get_type_mid(topic):
@@ -130,6 +148,7 @@ def entities_to_topics(entities):
 
         # For now, only consider first result
         best_match = results[0]
+        mid = best_match['mid']
         topics.append(best_match)
 
     return topics
@@ -143,8 +162,9 @@ def entities_to_mid_tuples(entities):
             continue
         # For now, only consider first result
         best_result = results[0]
-
         mid = best_result['mid']
+        #topic = get_topic(mid)
+        #best_result['id'] = topic['id']
 
         mid_tuples = FreebaseMids.objects.filter(mid = mid)
         logging.warning("hello there from freebase")
@@ -155,7 +175,7 @@ def entities_to_mid_tuples(entities):
     
         if len(mid_tuples) == 0:
             logging.warning("Entered get mid tuple")
-            logging.warning("best result" + str(best_result))
+            #logging.warning("best result" + str(best_result))
             type_mid = get_type_mid(best_result)
             domain_mid = get_domain_mid(best_result)
             new_mid_tuple = FreebaseMids(search_key=entity, mid=mid,
