@@ -145,7 +145,7 @@ def fb_login(request):
     
     return HttpResponse(t.render(c))
 
-def logged_in(request, accessToken)
+def logged_in(request, accessToken):
     payload = {'access_token': accessToken}
     r = requests.get('https://graph.facebook.com/me/', params=payload)
     f = open(os.path.join(os.path.dirname(__file__), 'Home.html'), 'r')
