@@ -32,7 +32,7 @@ class User(models.Model):
     objects = models.Manager() #Necessary to perform queries
 
     facebook_id = models.CharField(primary_key=True, max_length=70)
-    facebook_name = models.CharField(max_length=20)
+    facebook_name = models.CharField(max_length=50)
     last_updated = models.DateField(auto_now=True) # New timestamp each time it saves
 
 

@@ -97,13 +97,14 @@ def ajax_search(request):
     search_string= ""
     rec_list= []
     access_token=""
-    
+    user_id = 0
     logging.warning("Hello there")
 
     try:
         access_token = request.GET['access_token']
         search_string = request.GET['query']
-    
+        user_id = int(request.GET['user_id'])
+
         #Need to break up the search_string into multiple entities using Yahoo
         #for now just use this
         #search_keys = [search_string]
@@ -117,7 +118,8 @@ def ajax_search(request):
     except Exception:
         pass
     
-    num_friends = 27
+    logging.warning("user id is: " + str(user_id))
+    num_friends = integrated.num_updated_friends(user_id)
     
     
     t = loader.get_template('SearchResults.html')
