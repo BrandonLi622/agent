@@ -18,6 +18,9 @@ from django.http import HttpResponseRedirect
 
 #This is a hack
 def tests(request):
+    user2 = User.objects.all().filter(facebook_id = "2000")[0]
+    fb.add_profile(user2,"Quotes",["turkey"])
+    
     '''
     entities = fb.entities_to_topics(["apple", "cherry", "mango"])
     html = ""
@@ -51,6 +54,10 @@ def search(request):
     search_string= ""
     rec_list= []
     access_token=""
+    
+    #user = User.objects.all().filter(facebook_id = "2000")[0]
+    #fb.add_profile(user,"Interests",["Italy", "mangoes"])
+
     
     logging.warning("Hello there")
 

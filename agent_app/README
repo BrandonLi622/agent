@@ -1,2 +1,5 @@
 Known Bugs:
 If an entity does not have "notable" as a field, our freebase stuff will fail
+
+TODO:
+Check that our recommendation scores are correct

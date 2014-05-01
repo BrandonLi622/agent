@@ -36,7 +36,13 @@ a {
     text-decoration:none;
 }
 
-[type=search_result] {
+[type=search_result]{
+    text-decoration: blink;
+    cursor: pointer;
+    color: blue;
+}
+
+#profile_link{
     text-decoration: blink;
     cursor: pointer;
     color: blue;

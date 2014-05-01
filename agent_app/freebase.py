@@ -3,6 +3,7 @@ import urllib
 import re
 from agent_app.models import *
 import logging
+from datetime import datetime, date
 
 # TODO:
 # - Error handling for topic/search
@@ -49,8 +50,8 @@ def get_domain_mid(topic):
     return domain
 
 
-def add_count(topic):
-    mid = topic['mid']
+def add_count(mid_tuple):
+    mid = mid_tuple[0]
     tf, is_created = TermFrequency.objects.get_or_create(freebase_mid = mid)
 
     logging.warning(str(tf))
@@ -59,11 +60,12 @@ def add_count(topic):
     logging.warning("Adding count: " + str(tf.freq_count))
     tf.save()
     
-def add_counts(topics):
-    for topic in topics:
-        add_count(topic)
+def add_counts(mid_tuples):
+    for mid_tuple in mid_tuples:
+        add_count(mid_tuple)
 
-def add_interaction(user, source_type, entities,
+#should this really be add interactions?
+def add_profile(user, field_type, entities,
         site_name='facebook'):
     '''Store a given interaction represented by a facebook user_id, source type
     (class name), and list of entities'''
@@ -78,10 +80,33 @@ def add_interaction(user, source_type, entities,
         domain = get_domain_mid(topic)
 
         # Create object of type source type
-        interaction = source_type(user_id=user,
+        interaction = Profile(user_id=user,
                 site_name=site_name, freebase_mid=mid,
                 freebase_id=id, freebase_name=name,
-                freebase_type=type, freebase_domain=domain)
+                freebase_type=type, freebase_domain=domain, field_type=field_type)
+        interaction.save()
+
+#should this really be add interactions?
+def add_action(user, field_type, field_id, entities,
+        site_name='facebook'):
+    '''Store a given interaction represented by a facebook user_id, source type
+    (class name), and list of entities'''
+
+    topics = entities_to_topics(entities)
+    for topic in topics:
+        mid = topic['mid']
+        id = topic['id']
+        name = topic['name']
+        notable_type = get_notable_type(topic) #id_to_mid(notable_type)
+        type = id_to_mid(notable_type)
+        domain = get_domain_mid(topic)
+
+        # Create object of type source type
+        interaction = Action(user_id=user,
+                site_name=site_name, freebase_mid=mid,
+                freebase_id=id, freebase_name=name,
+                freebase_type=type, freebase_domain=domain,
+                field_type=field_type, field_id = field_id)
         interaction.save()
 
 def entities_to_topics(entities):
@@ -99,6 +124,52 @@ def entities_to_topics(entities):
         topics.append(best_match)
 
     return topics
+
+def entities_to_mid_tuples(entities):
+    all_tuples = []
+    for entity in entities:
+        results = search(entity)
+
+        if len(results) == 0:
+            continue
+        # For now, only consider first result
+        best_result = results[0]
+
+        mid = best_result['mid']
+
+        mid_tuples = FreebaseMids.objects.filter(mid = mid)
+        logging.warning("hello there from freebase")
+        logging.warning("test " + str(len(mid_tuples)))
+
+        type_mid = ""
+        domain_mid = ""
+    
+        if len(mid_tuples) == 0:
+            logging.warning("Entered get mid tuple")
+            logging.warning("best result" + str(best_result))
+            type_mid = get_type_mid(best_result)
+            domain_mid = get_domain_mid(best_result)
+            new_mid_tuple = FreebaseMids(search_key=entity, mid=mid,
+                                         type_mid = type_mid,
+                                         domain_mid = domain_mid)
+            new_mid_tuple.save()
+            logging.warning("Finished saving")
+        else:
+            logging.warning("Entered else condition")
+            cached_result = mid_tuples[0]
+            logging.warning("Cached result: " + str(cached_result))
+            mid = cached_result.mid
+            type_mid = cached_result.type_mid
+            domain_mid = cached_result.domain_mid
+            logging.warning("Got cached result")
+        
+        logging.warning(mid + " sep " + type_mid + " sep " + domain_mid)
+        new_tuple = (mid, type_mid, domain_mid)
+        all_tuples.append(new_tuple)
+        logging.warning("Finished iteration of loop")
+
+    logging.warning("All tuples: " + str(all_tuples))
+    return all_tuples
 
 def id_to_mid(id):
     topic = get_topic(id)
@@ -131,7 +202,13 @@ def get_topic(query):
 
     params = { 'key': API_KEY }
     url = TOPICS_URL + query + '?' +  urllib.urlencode(params)
+    logging.warning("called url " + url)
+    
+    starttime = datetime.now()
     response = json.loads(urllib.urlopen(url).read())
+    endtime = datetime.now()
+    logging.warning("Request duration " + str(endtime - starttime))
+
 
     #logging.warning(query)
     #logging.warning(str(response))

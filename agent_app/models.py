@@ -7,6 +7,16 @@ from django.db import models
 # Django creates default primary keys:
 # https://docs.djangoproject.com/en/dev/topics/db/models/#automatic-primary-key-fields
 
+class FreebaseMids(models.Model):
+    objects = models.Manager() #Necessary to perform queries
+
+    search_key = models.CharField(max_length=50)
+    mid = models.CharField(max_length=50)
+    type_mid = models.CharField(max_length=50)
+    domain_mid = models.CharField(max_length=50)
+    
+    def __unicode__(self):
+	return self.search_key
 
 class TermFrequency(models.Model):
     objects = models.Manager() #Necessary to perform queries
@@ -46,14 +56,21 @@ class SiteInteraction(models.Model):
         abstract = True
 
 # In the event we want to score them differently by type
+#Interest, etc.
 class Profile(SiteInteraction):
     objects = models.Manager() #Necessary to perform queries
+    field_type = models.CharField(max_length=50) #e.g. interests, etc.
     pass
 
 class Location(SiteInteraction):
+    objects = models.Manager() #Necessary to perform queries
     pass
 
+#A post, a message, etc.
 class Action(SiteInteraction):
+    objects = models.Manager() #Necessary to perform queries
+    field_type = models.CharField(max_length=50) #e.g. posts, etc.
+    field_id = models.CharField(max_length=50)
     pass
 
 

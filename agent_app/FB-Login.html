@@ -22,12 +22,20 @@
     return false;
   }
   
+  function openID(id) {
+    window.open("https://facebook.com/" + id);
+    return false;
+    
+  }
+  
   function clickedRec(id, name) {
-    document.getElementById('AboutPageHolder').hidden = true;
-    document.getElementById('profile_link').href = "https://facebook.com/" + id;
-    document.getElementById('profile_link').innerHTML = "Link to " + name + "'s profile";
-
+    //document.getElementById('AboutPageHolder').hidden = true;
     document.getElementById('InfoArea').hidden = false;
+    document.getElementById('profile_link').innerHTML = "test";
+    //document.getElementById('profile_link').innerHTML = "<a onclick=openID(" + str(id) + ")> Link to " + str(name) + "'s profile</a>";
+    document.getElementById('profile_link').innerHTML = "<a onclick=openID(" + id + ")>Link to " + name + "'s profile</a>";
+
+  
   }
   
   window.fbAsyncInit = function() {
@@ -59,7 +67,7 @@
         document.getElementById("SearchResults").hidden = true;
       }
       */
-      
+      document.getElementById("query").disabled = false;
 
       // The response object is returned with a status field that lets the app know the current
       // login status of the person. In this case, we're handling the situation where they 
@@ -97,6 +105,7 @@
       //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
       //window.location.replace('../home');
       document.getElementById('login_welcome').innerHTML = "Welcome, guest!";
+      document.getElementById("query").disabled = true;
 
     } else {
       // In this case, the person is not logged into Facebook, so we call the login() 
@@ -107,6 +116,7 @@
       //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
       //window.location.replace('../home');
       document.getElementById('login_welcome').innerHTML = "Welcome, guest!";
+      document.getElementById("query").disabled = true;
 
     }
   });
@@ -146,12 +156,18 @@ $("#about_page_link").on("click", function() {
           $('#AboutPageHolder').show();
           $('#InfoArea').hide();
 });
-
+/*
 $("#logo").on("click", function() {
           $('#AboutPageHolder').hide();
           $('#NonHeader').show();
+          $('#InfoArea').hide()
+          var fileref=document.createElement("link");
+          fileref.setAttribute("rel", "stylesheet");
+          fileref.setAttribute("type", "text/css");
+          fileref.setAttribute("href", "/static/styles/styles.css");
+          document.getElementsByTagName("head")[0].appendChild(fileref);
 
-});
+});*/
 
 $("#query").keyup(function(event) {
   if (event.which == 13) {
@@ -192,7 +208,7 @@ $("#query").keyup(function(event) {
 </script>
 
 <div id="HeaderBar">
-  <img id="logo" src="/static/images/Agent_Logo_White.png" />
+  <a href=""><img id="logo" src="/static/images/Agent_Logo_White.png" /></a>
   
   <div id="menu">
     <ul id="menu_options">
@@ -234,7 +250,8 @@ $("#query").keyup(function(event) {
   
   <div hidden=true id="InfoArea">
     <p>Info Area Placeholder</p>
-    <a id=profile_link href="">Link to</a>
+    <div id=profile_link>
+    </div>
   </div>
   
   <div hidden=true id="AboutPageHolder">

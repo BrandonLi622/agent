@@ -1,7 +1,7 @@
 #import agent_app.models
 import random
 import agent_app.freebase as fb
-from agent_app.models import SiteInteraction, Profile, User, TermFrequency
+from agent_app.models import SiteInteraction, Profile, User, TermFrequency, FreebaseMids
 import logging
 from django.db.models import Sum
 
@@ -17,6 +17,50 @@ def get_friend_entries(friend_id):
 #for a given entity, return a score based on the current user
 #uses a naive algorithm
 #friend_entries is a list of models.SiteInteraction
+
+#mid_tuple is (mid, type_mid, domain_mid)
+def score_entity(mid_tuple, friend_entries):
+    score = 0.0    
+    #mid = search_entity['mid']
+    
+
+    mid = mid_tuple[0]
+
+    #What if these two things fail?
+    #type_mid = fb.get_type_mid(search_entity)
+    type_mid = mid_tuple[1]
+
+    #domain_mid = fb.get_domain_mid(search_entity)
+    domain_mid = mid_tuple[2]
+
+    #Points for matching mid (or category mid, do it recursively)
+    for db_entity in friend_entries:                
+        if mid == db_entity.freebase_mid:
+            score += 3.0
+        elif type_mid == db_entity.freebase_type:
+            score += 2.0
+        elif domain_mid == db_entity.freebase_domain:
+            score += 1.0
+    
+    #scale the score by how infrequent it is
+    #assume entity is in the table because should be added by point of recommend_n_friends
+    
+    logging.warning("Count: " + str(score))
+    
+    tf, is_new = TermFrequency.objects.get_or_create(freebase_mid = mid)
+    logging.warning("Frequency is: " + str(tf.freq_count))
+    
+    total_count = TermFrequency.objects.aggregate(Sum('freq_count'))['freq_count__sum']
+    
+    freq_scaling = 1.0 * (total_count + 1.0) / (int(tf.freq_count) + 1)
+    score *= freq_scaling
+    
+    logging.warning("Frequency scaled score: " + str(score))
+    
+    return score
+
+'''
+#mid_tuple is (mid, type_mid, domain_mid)
 def score_entity(search_entity, friend_entries):
     score = 0.0
     
@@ -57,17 +101,17 @@ def score_entity(search_entity, friend_entries):
     logging.warning("Frequency scaled score: " + str(score))
     
     return score
-
+'''
 #For now do a dumb algorithm which involves aggregating
 #scores from the different entites
 #Returns a list of tuples (friend_id, score)
-def score_friend(entity_list, friend_id):
+def score_friend(mid_tuple_list, friend_id):
     entity_scores = []
-    for i in range(0,len(entity_list)):
+    for i in range(0,len(mid_tuple_list)):
         logging.warning("Scoring an entity: " + str(i))
         #Probably not the best way to do this, passing a huge argument
         friend_entries = get_friend_entries(friend_id)
-        entity_scores.append(score_entity(entity_list[i], friend_entries))
+        entity_scores.append(score_entity(mid_tuple_list[i], friend_entries))
     
     logging.warning("Entity scores: " + str(entity_scores))
     
@@ -85,28 +129,54 @@ def score_friend(entity_list, friend_id):
     logging.warning("Final score: " + str(overall_score))
     return (friend_id, overall_score)
 
+'''
+def get_mid_tuple(entity):
+    logging.warning("entity: " + str(entity)) 
+    mids = FreebaseMids.objects.filter(search_key = entity['mid'])
+    mid, type_mid, domain_mid
+    
+    
+    if not(mids):
+        logging.warning("Entered get mid tuple")
+
+        mid = entity['mid']
+        type_mid = fb.get_type_mid(entity)
+        domain_mid = fb.get_domain_mid(entity)
+        new_mid_tuple = FreebaseMids(search_key=entity, mid=mid, type_mid = type_mid, domain_mid = domain_mid)
+        new_mid_tuple.save()
+        logging.warning("Finished saving")
+    else:
+        cached_result = mids[0]
+        mid = cached_result['mid']
+        type_mid = cached_result['type_mid']
+        domain_mid = cached_result['domain_mid']
+        logging.warning("Got cached result")
+    return mid, type_mid, domain_mid
+'''
+
 #friend_list is a list of id's
 #entity_list is a list of the actual entities
 #returns a list of User ID's
-def recommend_n_ids(n, entity_list, friend_list):
+def recommend_n_ids(n, mid_tuple_list, friend_list):
     friend_scores=[]
-    
+    logging.warning("mid_tuple_list" + str(mid_tuple_list))
+                    
     for i in range(0,len(friend_list)):
         logging.warning("Going through loop: " + str(i))
-        friend_scores.append(score_friend(entity_list, friend_list[i]))
+        friend_scores.append(score_friend(mid_tuple_list, friend_list[i]))
     
     friend_scores.sort(key=lambda tup: tup[1], reverse=True)
     top_scores = friend_scores[0:n]
     recommendations = [i[0] for i in top_scores]
     return recommendations
 
-def recommend_n_friends(n, entity_list, friend_list):
+def recommend_n_friends(n, mid_tuple_list, friend_list):
     #should I do this here or elsewhere?
     
     #NOTE: This really should be topic list
-    fb.add_counts(entity_list)
+    fb.add_counts(mid_tuple_list)
     
-    ids = recommend_n_ids(n, entity_list, friend_list)
+    ids = recommend_n_ids(n, mid_tuple_list, friend_list)
     
     logging.warning(str(ids))
     logging.warning(str(User.objects.get(facebook_id = '1000')))

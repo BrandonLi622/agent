@@ -13,9 +13,8 @@ import agent_app.freebase as fb
 
 #Assuming search_keys is a list of strings
 def recommend(search_keys):
-    entities = fb.entities_to_topics(search_keys)
-    
-    logging.warning("Search entities: " + str(entities))
-    
-    recs = rec.recommend_n_friends(3, entities, ["1000"])
+    logging.warning("in recommend")
+    mid_tuples = fb.entities_to_mid_tuples(search_keys)
+    logging.warning("Search entities: " + str(mid_tuples))
+    recs = rec.recommend_n_friends(3, mid_tuples, ["1000", "2000"])
     return recs
