@@ -23,18 +23,28 @@ def get_notable_type(topic):
     mid = topic['mid']
     id = topic['id']
     name = topic['name']
-    
-    notable_type = topic['notable']['id']
-         
+
+    notable_type = None
+    try:
+        notable_type = topic['notable']['id']
+    except KeyError:
+        pass
+
     logging.warning("marker")
-       
-    if re.search(FREEBASE_MID_REGEX, notable_type):
+
+    # This is really shitty code; this should probably be wrapped in the
+    # try/except somehow with a custom execption
+    if notable_type is None or re.search(FREEBASE_MID_REGEX, notable_type):
     # The 'notable' field was a related entity, so look
     # up the original entity and extract notable type
         topic = get_topic(mid)
         notable_types = topic['property']['/common/topic/notable_types']['values']
         if len(notable_types) == 0:
-            notable_type = None
+            types = topic['property']['/type/object/types']['values']
+            if len(types) == 0:
+                notable_type = None
+            else:
+                notable_type = types[0]['id']
         else:
             notable_type = notable_types[0]['id']
 
@@ -48,7 +58,6 @@ def get_domain_mid(topic):
     notable_domain = '/' + notable_type.split('/')[1]
     domain = id_to_mid(notable_domain)
     return domain
-
 
 def add_count(mid_tuple):
     mid = mid_tuple[0]

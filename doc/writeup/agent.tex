@@ -84,7 +84,18 @@ articles. Agent brings you knowledge through the web.
 
 \section{Conclusion}
 \label{sec:conclusion}
-\todo{BLi or Chris}
+In this paper, we have outlined the design of Agent, a system for locating
+knowledge and expertise within one's social networks. Agent collects data from a
+user's connected social networking accounts and then stores that data in a
+representation based on the Freebase information format. Specifically, Agent
+transforms site-interactions (e.g.\ publicly available profile information,
+`posts' and location-based content uploads such as photos and `check-ins') into
+a set of Freebase entities, which it stores for querying. Upon receiving a
+query, Agent similarly transforms the text of the query into entities, and then
+uses an algorithm loosely based off of Inverse Document Frequency in order to
+score a user's `friends' according to how likely they are to be able to provide
+expertise on the given query. We have also detailed our system architecture, and
+presented an implementation using Postgres, Django, and the Facebook API.
 
 \bibliographystyle{plain}
 \bibliography{ref}
