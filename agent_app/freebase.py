@@ -139,7 +139,7 @@ def add_action(user, field_type, field_id, entities,
 def entities_to_topics(entities):
     '''Given a string of tags, return a list of freebase search response
     objects corresponding to those tags'''
-
+    
     topics = []
     for entity in entities:
         results = search(entity)

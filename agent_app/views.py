@@ -13,6 +13,7 @@ import agent_app.recommender as rec
 import agent_app.FB_Utilities as FB_Utilities
 import agent_app.freebase as fb
 import agent_app.integrated as integrated
+import agent_app.Yahoo_Utilities as Yahoo_Utilities
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 
@@ -64,10 +65,11 @@ def search(request):
     try:
         search_string = request.GET['query']
         access_token = request.GET['access_token']
-    
+        
         #Need to break up the search_string into multiple entities using Yahoo
         #for now just use this
-        search_keys = [search_string]
+        #search_keys = [search_string]
+        search_keys = Yahoo_Utilities.extract_entities(search_string)
 
         logging.warning("Did a search: " + search_string);
         rec_list = integrated.recommend(search_keys)
@@ -99,13 +101,14 @@ def ajax_search(request):
     logging.warning("Hello there")
 
     try:
-        search_string = request.GET['query']
         access_token = request.GET['access_token']
+        search_string = request.GET['query']
     
         #Need to break up the search_string into multiple entities using Yahoo
         #for now just use this
-        search_keys = [search_string]
-
+        #search_keys = [search_string]
+        search_keys = Yahoo_Utilities.extract_entities(search_string)
+        
         logging.warning("Did a search: " + search_string);
         rec_list = integrated.recommend(search_keys)
     
@@ -142,12 +145,12 @@ def fb_login(request):
     
     return HttpResponse(t.render(c))
 
-def logged_in(request, accessToken):
+def logged_in(request, accessToken)
     payload = {'access_token': accessToken}
     r = requests.get('https://graph.facebook.com/me/', params=payload)
     f = open(os.path.join(os.path.dirname(__file__), 'Home.html'), 'r')
     html = f.read()
-    
+
     if (r.status_code == 200):
         html = html.replace("<body>", "<body>" + FB_Utilities.get_friend_names(accessToken))
         return HttpResponse(html)
