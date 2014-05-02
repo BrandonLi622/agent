@@ -1,9 +1,14 @@
 import random
 import requests
+import logging
 import json
 import agent_app.freebase as fb
 import agent_app.Yahoo_Utilities as Yahoo_Utilities
 from agent_app.models import *
+
+def scrape_friends(accessToken):
+    logging.warning("start function")
+    return
 
 #Assume that the token is good
 def get_friend_ids(accessToken):
