@@ -1,7 +1,6 @@
 import random
 import requests
 import json
-import logging
 import agent_app.freebase as fb
 import agent_app.Yahoo_Utilities as Yahoo_Utilities
 from agent_app.models import *
@@ -35,7 +34,6 @@ def get_friend_names(accessToken):
     #js = r.json()
     #logging.warning(str(js))
     #return str(js)
-    
 
 def scrape_friend_data(accessToken):
 	payload = {'access_token': accessToken}
@@ -94,3 +92,21 @@ def scrape_friend_data(accessToken):
 
 
 	return FriendData
+
+def num_updated(friends_ids):
+    count = 0
+    #Could probably have a more efficient query here
+    for friend_id in friends_ids:
+        s = User.objects.filter(facebook_id = friend_id)
+        count += len(s)
+    return count
+
+
+def num_friends(friends_ids):
+    logging.warning("test")
+    count = 0
+    logging.warning("Gets to the num_friends")
+    for friend_id in friends_ids:
+        s = User.objects.filter(facebook_id = friend_id)
+        count += len(s)
+    return count

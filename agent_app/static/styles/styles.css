@@ -48,6 +48,12 @@ a {
     color: blue;
 }
 
+#AboutPageHolder {
+    width: 100%;
+    border: 1px solid black;
+}
+
+
 #HeaderBar {
     background: #000000;
     display : block;
