@@ -70,6 +70,7 @@ def scrape_friend_data(accessToken):
             friend_dict = r2.json()
             if 'hometown' in friend_dict:
                 hometown = friend_dict['hometown']
+                fb.add_profile(friend['id'],'hometown',hometown)
                 data.append(hometown['name'])	
 
             r3 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/likes', params=payload)
@@ -78,6 +79,7 @@ def scrape_friend_data(accessToken):
                 try:
                     likeid = str(like['id'])
                     likename = str(like['name'])
+                    fb.add_action(friend['id'],'/like',likeid,likename)
                     data.append(likename)
                 except Exception:
                         pass
@@ -89,10 +91,10 @@ def scrape_friend_data(accessToken):
                     statusid = status['id']
                     resultlist = Yahoo_Utilities.extract_entities(status['message'])
                     for result in resultlist:
+                    	fb.add_action(friend['id'],'/status',statusid,result)
                         data.append(result)
                 except Exception:
                     pass
-    return FriendData
 
 def num_updated(friends_ids):
     count = 0
