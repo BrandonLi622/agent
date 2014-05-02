@@ -4,6 +4,7 @@ import json
 import logging
 import agent_app.freebase as fb
 import agent_app.Yahoo_Utilities as Yahoo_Utilities
+from agent_app.models import *
 
 #Assume that the token is good
 def get_friend_ids(accessToken):
@@ -51,33 +52,42 @@ def scrape_friend_data(accessToken):
 	for i in range(0,n):
 		friend = friends[random.randint(0,len(friends)-1)]
 		name = friend['name']
-		data = [];
-		#logging.warning(str(i ) + " " + name + " " + friend['id'])
-		i=i+1
-		r2 = requests.get('https://graph.facebook.com/' + str(friend['id']), params=payload)
-		friend_dict = r2.json()
-		if 'hometown' in friend_dict:
-			hometown = friend_dict['hometown']
-			data.append(hometown['name'])
+		logging.warning(User.objects.all())
+		if len(User.objects.all().filter(facebook_id = friend['id'])) == 0:
+			logging.warning("!!")
+			interaction = User(facebook_id=friend['id'], facebook_name=name)
+			interaction.save()
+			data = []
+			#logging.warning(str(i ) + " " + name + " " + friend['id'])
+			i=i+1
+			r2 = requests.get('https://graph.facebook.com/' + str(friend['id']), params=payload)
+			friend_dict = r2.json()
+			if 'hometown' in friend_dict:
+				hometown = friend_dict['hometown']
+				data.append(hometown['name'])	
 
-		r3 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/likes', params=payload)
-		likes_dict = r3.json()['data']
-		for like in likes_dict:
-			try:
-				likename = str(like['name'])
-				data.append(likename)
-			except Exception:
-				pass
+			r3 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/likes', params=payload)
+			likes_dict = r3.json()['data']
+			for like in likes_dict:
+				try:
+					likeid = str(like['id'])
+					likename = str(like['name'])
+					data.append(likename)
+				except Exception:
+					pass
 
-		r4 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/statuses', params=payload)
-		status_dict = r4.json()['data']
-		for status in status_dict:
-			try:
-				resultlist = Yahoo_Utilities.extract_entities(status['message'])
-				for result in resultlist:
-					data.append(result)
-			except Exception:
-				pass
+			r4 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/statuses', params=payload)
+			status_dict = r4.json()['data']
+			for status in status_dict:
+				try:
+					statusid = status['id']
+					resultlist = Yahoo_Utilities.extract_entities(status['message'])
+					for result in resultlist:
+						data.append(result)
+				except Exception:
+					pass
+
+
 
 		break
 
