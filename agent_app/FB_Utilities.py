@@ -36,6 +36,7 @@ def get_friend_names(accessToken):
     #return str(js)
 
 def scrape_friend_data(accessToken):
+	logging.warning(accessToken)
 	payload = {'access_token': accessToken}
 	r = requests.get('https://graph.facebook.com/me/friends/', params=payload)
 	js = r.json()
@@ -43,7 +44,6 @@ def scrape_friend_data(accessToken):
 	random.seed()
 
 
-	FriendData = []
 	#i = 1
 	#for friend in friends:
 	n = 10
@@ -52,9 +52,8 @@ def scrape_friend_data(accessToken):
 		name = friend['name']
 		logging.warning(User.objects.all())
 		if len(User.objects.all().filter(facebook_id = friend['id'])) == 0:
-			logging.warning("!!")
-			interaction = User(facebook_id=friend['id'], facebook_name=name)
-			interaction.save()
+			interaction1 = User(facebook_id=friend['id'], facebook_name=name)
+			
 			data = []
 			#logging.warning(str(i ) + " " + name + " " + friend['id'])
 			i=i+1
@@ -62,6 +61,7 @@ def scrape_friend_data(accessToken):
 			friend_dict = r2.json()
 			if 'hometown' in friend_dict:
 				hometown = friend_dict['hometown']
+				fb.add_profile(friend['id'],'hometown',hometown)
 				data.append(hometown['name'])	
 
 			r3 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/likes', params=payload)
@@ -70,6 +70,7 @@ def scrape_friend_data(accessToken):
 				try:
 					likeid = str(like['id'])
 					likename = str(like['name'])
+					fb.add_action(friend['name'],'/likes',likeid,likename)
 					data.append(likename)
 				except Exception:
 					pass
@@ -81,17 +82,11 @@ def scrape_friend_data(accessToken):
 					statusid = status['id']
 					resultlist = Yahoo_Utilities.extract_entities(status['message'])
 					for result in resultlist:
+						fb.add_action(friend['name'],'/status',statusid,result)
 						data.append(result)
 				except Exception:
 					pass
-
-
-
-		break
-
-
-
-	return FriendData
+			interaction1.save()
 
 def num_updated(friends_ids):
     count = 0
