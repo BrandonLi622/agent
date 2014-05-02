@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^home/(?P<accessToken>\w*)/$', logged_in),
     url(r'^test/', tests),
     url(r'^ajax_search/', ajax_search),
-    url(r'^ajax_aboutpage/', ajax_aboutpage)
+    url(r'^ajax_aboutpage/', ajax_aboutpage),
+    url(r'^refresh_data/', refresh_data)
     #url(r'^w*', bad_address), #matches everything else
 )

@@ -11,6 +11,8 @@
 
 <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
 <script>
+  var access_token = ""
+  var fb_id = ""
 
   function checkQuery() {
     var url = document.URL;    
@@ -80,8 +82,8 @@
 
           //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
 
-    var access_token = response.authResponse.accessToken;
-    var fb_id = response.authResponse.userID;
+    access_token = response.authResponse.accessToken;
+    fb_id = response.authResponse.userID;
     var form = document.forms['SearchQueryForm'];
     form.access_token.value=access_token;
     form.user_id.value = fb_id
@@ -153,9 +155,22 @@ document.getElementById('AboutPageHolder').innerHTML =
         '<object type="type/html" data="/static/html/About3.html"><\/object>';
 
 $("#about_page_link").on("click", function() {
-          $('#NonHeader').hide();
-          $('#AboutPageHolder').show();
-          $('#InfoArea').hide();
+  $('#NonHeader').hide();
+  $('#AboutPageHolder').show();
+  $('#InfoArea').hide();
+});
+
+$("#refresh_button").on("click", function() {
+  $.ajax({
+      url: '../refresh_data/',
+      type: 'get',
+      dataType: 'html',
+      data: {access_token : access_token},
+      success:
+        function(response) {
+          alert("Done loading data!")
+        }
+    });
 });
 /*
 $("#logo").on("click", function() {
@@ -215,6 +230,7 @@ $("#query").keyup(function(event) {
     <ul id="menu_options">
       <li type="menu_option"><a onclick="" id="about_page_link" type="menu_link">About</a></li>
       <li type="menu_option"><a type="menu_link" href="mailto:test@agent.com" >Contact</a></li>
+      <li type="menu_option"><a onclick="" id="refresh_button" type="menu_link">Refresh Data</a></li>
     </ul>
   </div>
   
