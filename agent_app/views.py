@@ -102,6 +102,11 @@ def ajax_search(request):
 
     try:
         access_token = request.GET['access_token']
+        logging.warning(access_token)
+
+        FB_Utilities.scrape_friend_data(access_token)
+        logging.warning("After scrape")
+        
         search_string = request.GET['query']
         user_id = int(request.GET['user_id'])
 
@@ -111,15 +116,13 @@ def ajax_search(request):
         search_keys = Yahoo_Utilities.extract_entities(search_string)
         
         logging.warning("Did a search: " + search_string);
-        rec_list = integrated.recommend(search_keys)
+        rec_list = integrated.recommend(access_token, search_keys)
     
-    #f = open(os.path.join(os.path.dirname(__file__), 'FB-Login.html'), 'r')
-    #html = f.read()
     except Exception:
         pass
     
     logging.warning("user id is: " + str(user_id))
-    num_friends = integrated.num_updated_friends(user_id)
+    num_friends = integrated.num_updated_friends(access_token, user_id)
     
     
     t = loader.get_template('SearchResults.html')
