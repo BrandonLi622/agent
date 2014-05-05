@@ -1,3 +1,18 @@
+'''
+Agent
+ Copyright (c) 2014
+ Brandon Li, Daniel Tahara, and Christopher Zeng
+ All Rights Reserved.
+ NOTICE:  All information contained herein is, and remains
+ the property of the above authors The intellectual and technical
+ concepts contained herein are proprietary to the authors and
+ may be covered by U.S. and Foreign Patents, patents in process,
+ and are protected by trade secret or copyright law. Dissemination
+ of this information or reproduction of this material is strictly
+ forbidden unless prior written permission is obtained from
+ the authors.
+'''
+
 #import agent_app.models
 import random
 import agent_app.freebase as fb
@@ -11,6 +26,10 @@ import agent_app.FB_Utilities as FB_Utilities
 alpha = 10.0
 beta = 2.0
 gamma = 1.0
+
+status_scale = 0.1
+like_scale = 1.0
+profile_scale = 5.0
 
 
 #for a friend_id get all of the entries in SiteInteraction associated with it
@@ -36,12 +55,14 @@ def get_friend_entries(friend_id, entry_type):
 #friend_entries is a list of models.SiteInteraction
 
 #mid_tuple is (mid, type_mid, domain_mid)
-def score_entity(mid_tuple, friend_entries):
+def score_entity(mid_tuple, friend_entries, entry_type):
     logging.warning("got into score entity");
     score = 0.0    
     mid = mid_tuple[0]
     type_mid = mid_tuple[1]
     domain_mid = mid_tuple[2]
+    
+    type_scale = 1.0
 
     #Points for matching mid (or category mid, do it recursively)
     for db_entity in friend_entries:                

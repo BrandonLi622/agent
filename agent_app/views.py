@@ -1,3 +1,18 @@
+'''
+Agent
+ Copyright (c) 2014
+ Brandon Li, Daniel Tahara, and Christopher Zeng
+ All Rights Reserved.
+ NOTICE:  All information contained herein is, and remains
+ the property of the above authors The intellectual and technical
+ concepts contained herein are proprietary to the authors and
+ may be covered by U.S. and Foreign Patents, patents in process,
+ and are protected by trade secret or copyright law. Dissemination
+ of this information or reproduction of this material is strictly
+ forbidden unless prior written permission is obtained from
+ the authors.
+'''
+
 # Create your views here.
 import os
 import string
@@ -140,6 +155,7 @@ def ajax_search(request):
     rec_list= []
     access_token=""
     user_id = 0
+    num_friends = 0
     logging.warning("Hello there")
 
     try:
@@ -150,6 +166,7 @@ def ajax_search(request):
         
         search_string = request.GET['query']
         query_type = request.GET['QueryType']
+        logging.warning(request.GET['user_id'])
         user_id = int(request.GET['user_id'])
         
         logging.warning(query_type)
@@ -162,13 +179,11 @@ def ajax_search(request):
         logging.warning("Did a search: " + search_string);
         rec_list = integrated.recommend(access_token, search_keys, query_type)
     
-    except Exception:
-        pass
+    except Exception as e:
+        logging.warning("Exception in the view: " + str(e))
     
-    logging.warning("user id is: " + str(user_id))
     num_friends = integrated.num_updated_friends(access_token, user_id)
-    
-    
+
     t = loader.get_template('SearchResults.html')
     c = Context({
         'rec_list': rec_list,

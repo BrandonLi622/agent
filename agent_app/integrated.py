@@ -1,3 +1,18 @@
+'''
+Agent
+ Copyright (c) 2014
+ Brandon Li, Daniel Tahara, and Christopher Zeng
+ All Rights Reserved.
+ NOTICE:  All information contained herein is, and remains
+ the property of the above authors The intellectual and technical
+ concepts contained herein are proprietary to the authors and
+ may be covered by U.S. and Foreign Patents, patents in process,
+ and are protected by trade secret or copyright law. Dissemination
+ of this information or reproduction of this material is strictly
+ forbidden unless prior written permission is obtained from
+ the authors.
+'''
+
 #!/usr/bin/env python
 import os
 import string
@@ -10,6 +25,8 @@ import random
 from agent_app.models import SiteInteraction, Profile, User
 import agent_app.recommender as rec
 import agent_app.FB_Utilities as FB_Utilities
+
+
 import agent_app.freebase as fb
 
 
