@@ -15,6 +15,7 @@
 \usepackage{algorithmic}
 \usepackage{amssymb}
 
+
 \newcommand{\textred}[1]{\textcolor{red}{#1}}
 \ifx\noeditingmarks\undefined
   \newcommand{\pgwrapper}[2]{\textbf{#1: }\textred{#2}}
@@ -87,6 +88,29 @@ articles. Agent brings you knowledge through the web.
 \input{data-model}
 \input{scoring-algorithm}
 
+\section{Future Work}
+\label{sec:future}
+In the future, we hope to fine-tune our recommendation algorithm and parameters
+to yield more satisfying results. It is a difficult task to both infer semantics from
+a natural language query and also to infer a user's knowledge set from their
+Facebook data. Perhaps one additional feature that would improve results would be
+to resolve entities directly in the search box by offering the different Freebase
+entities that match a phrase to the user to select from. For example, if the user
+types "apple" into the search box, perhaps an autocomplete-like feature could
+inquire the user as to which sense the word that they meant, the fruit or the technology
+company.
+
+Based on the brief testing that we performed, it seems that posts and statuses are
+generally more difficult to resolve than interests since posts and statuses are typically
+longer, contain a lot of slang and misspellings, and contain many words that do not
+contribute to the overall meaning of the sentence but may still get stored in the
+database. In a future implementation, we may simply do a pattern match on the
+search query for posts and statuses and do the existing semantic similarity check
+(where we check mid, typeMid, and domainMid) on categories like likes and interests.
+Another option is to only consider nouns from statuses. Yet a third option is simply to
+select a better entity extractor, since it seems that Yahoo's API is not well-suited to
+chunking Facebook posts.
+
 \section{Conclusion}
 \label{sec:conclusion}
 In this paper, we have outlined the design of Agent, a system for locating
@@ -104,6 +128,5 @@ presented an implementation using Postgres, Django, and the Facebook API.
 
 \bibliographystyle{plain}
 \bibliography{ref}
-% That's all folks!
 \end{document}
 

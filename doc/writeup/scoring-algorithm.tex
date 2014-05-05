@@ -3,10 +3,9 @@
 \section{Scoring Algorithm}
 \label{sec:scoring}
 
-% TODO: High level description
 Many recommendation systems today can be classified as either content-based
 systems or collaborative filtering systems
-(http://infolab.stanford.edu/~ullman/mmds/ch9.pdf). Content-based systems seek
+\cite{recsys}. Content-based systems seek
 to offer you suggestions based on items a user has already given some form of
 feedback on, while collaborative filtering systems search social graphs to find
 people who would have similar ``taste'' to a given user and make recommendations
@@ -25,8 +24,7 @@ identified the identified the scoring criteria as follows:
 \item Priority to ``specialized'' terms
 \item Priority for more search keys matched
 \end{enumerate}
-where friend's activity includes the friend's posts, check-ins, interest,
-\todo{[TODO: fill in]}
+where friend's activity includes a user's profile information, statuses, and likes
 and ``related terms'' are defined as the topic and domain of a term as given by the Freebase API.
 
 
@@ -55,7 +53,7 @@ and ``related terms'' are defined as the topic and domain of a term as given by 
 \end{algorithmic}
 \end{algorithm}
 
-Term Frequency Inverse-Document Frequency (TF-IDF) \todo{[Citation needed]} is a
+Term Frequency Inverse-Document Frequency (TF-IDF) \cite{tfidf} is a
 well-established metric for determining how relevant a given term is to a
 document. It is based off of a ``relative frequency'' count of the search key
 and is scaled by how common the word is in general. However, based on this
@@ -84,9 +82,10 @@ user was only interested in a subset of their query, they simply could have
 searched for that subset.
 
 Given that our service is in essence a ``friend filter,'' these criteria were
-selected based on what a user expects this service to be doing. There is very
+selected based on what a user might expect this service to be doing. There is very
 little emphasis on ``discoverability.'' We are simply helping the user parse
-through a lot of data and find the friends that match their search query.
+through a lot of data and quickly find the friends that match a search query
+in a way that is transparent and intuitive to them.
 
 In terms of choosing the scaling factors, we had the option to use a
 machine-learning approach to optimize over a certain condition, but there is no
@@ -99,7 +98,3 @@ algorithm and choosing the set of parameters for which the users had the most
 positive response. Although, in the future, it might be interesting to adjust
 the parameters.
 
-
-% TODO: SQL
-
-\todo{BLi}
