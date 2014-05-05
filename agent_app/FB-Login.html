@@ -1,19 +1,22 @@
+ <!DOCTYPE HTML>
 <html>
+  
 <head>
+   <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+
   <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tauri">
  <link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" media="all" href="/static/styles/styles.css">
 
-</head>
-<body>
 <div id="fb-root"></div>
 
-
-
 <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+
 <script>
   var access_token = ""
   var fb_id = ""
+  var last_search = ""
 
   function checkQuery() {
     var url = document.URL;    
@@ -31,17 +34,20 @@
     
   }
   
-  function clickedRec(id, name) {
+  function clickedRec(id, name, score) {
     //document.getElementById('AboutPageHolder').hidden = true;
     document.getElementById('InfoArea').hidden = false;
-    document.getElementById('profile_link').innerHTML = "test";
+    document.getElementById('InfoHeader').innerHTML = "Info Card: " + name
     //document.getElementById('profile_link').innerHTML = "<a onclick=openID(" + str(id) + ")> Link to " + str(name) + "'s profile</a>";
     document.getElementById('profile_link').innerHTML = "<a onclick=openID(" + id + ")>Link to " + name + "'s profile</a>";
+    document.getElementById('profile_link').title = id;
+    document.getElementById('relative_score').innerHTML = "Relative score: " + score
+    document.getElementById('search_key').innerHTML = "Search string:   <a style='font-style: italic'>" + document.getElementById('last_search').title + "</a>";
 
-  
   }
   
   window.fbAsyncInit = function() {
+    
   FB.init({
     appId      : '676530749060261',
     status     : true, // check login status
@@ -49,6 +55,33 @@
     xfbml      : true  // parse XFBML
   });
 
+  
+  FB.getLoginStatus(function(response) {
+    if (response.status === 'connected') {
+      document.getElementById("SearchQueryForm").hidden = false;
+      document.getElementById("query").disabled = false;
+      access_token = response.authResponse.accessToken;
+      fb_id = response.authResponse.userID;
+      var form = document.forms['SearchQueryForm'];
+      form.access_token.value=access_token;
+      form.user_id.value = fb_id
+      
+      FB.api('/me', function(response) {
+        document.getElementById('login_welcome').innerHTML = "Welcome, " + response.name + "!";
+      });
+    
+    //window.location.replace('../home/' + response.authResponse.accessToken);
+      
+    } else if (response.status === 'not_authorized') {
+      document.getElementById('login_welcome').innerHTML = "Welcome, guest!";
+      document.getElementById("query").disabled = true;
+
+    } else {
+      document.getElementById('login_welcome').innerHTML = "Welcome, guest!";
+      document.getElementById("query").disabled = true;
+
+    }
+ });
 
 
   // Here we subscribe to the auth.authResponseChange JavaScript event. This event is fired
@@ -59,66 +92,24 @@
     // Here we specify what we do with the response anytime this event occurs. 
     if (response.status === 'connected') {
       document.getElementById("SearchQueryForm").hidden = false;
-
-      //alert(response.authResponse.access_token);
-      //document.getElementById("Greeting").innerHTML = response.authResponse.access_token;      
-      /*
-      if (checkQuery()) {  
-        document.getElementById("SearchResults").hidden = false;
-      }
-      else {
-        document.getElementById("SearchResults").hidden = true;
-      }
-      */
       document.getElementById("query").disabled = false;
-
-      // The response object is returned with a status field that lets the app know the current
-      // login status of the person. In this case, we're handling the situation where they 
-      // have logged in to the app.
-      //testAPI();
-      //document.getElementById('Name').innerHTML = response.authResponse.accessToken
-/*FB.api('/me/', function(response) {
-       document.getElementById('Name').innerHTML = response.name;
-    });   */
-
-          //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
-
-    access_token = response.authResponse.accessToken;
-    fb_id = response.authResponse.userID;
-    var form = document.forms['SearchQueryForm'];
-    form.access_token.value=access_token;
-    form.user_id.value = fb_id
-    
-    FB.api('/me', function(response) {
-      //alert("Name: "+ response.name + "\nFirst name: "+ response.first_name + "ID: "+response.id);
-      //var img_link = "http://graph.facebook.com/"+response.id+"/picture"
+      access_token = response.authResponse.accessToken;
+      fb_id = response.authResponse.userID;
+      var form = document.forms['SearchQueryForm'];
+      form.access_token.value=access_token;
+      form.user_id.value = fb_id
       
-      document.getElementById('login_welcome').innerHTML = "Welcome, " + response.name + "!";
-    });
+      FB.api('/me', function(response) {
+        document.getElementById('login_welcome').innerHTML = "Welcome, " + response.name + "!";
+      });
     
     //window.location.replace('../home/' + response.authResponse.accessToken);
       
     } else if (response.status === 'not_authorized') {
-      // In this case, the person is logged into Facebook, but not into the app, so we call
-      // FB.login() to prompt them to do so. 
-      // In real-life usage, you wouldn't want to immediately prompt someone to login 
-      // like this, for two reasons:
-      // (1) JavaScript created popup windows are blocked by most browsers unless they 
-      // result from direct interaction from people using the app (such as a mouse click)
-      // (2) it is a bad experience to be continually prompted to login upon page load.
-      //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
-      //window.location.replace('../home');
       document.getElementById('login_welcome').innerHTML = "Welcome, guest!";
       document.getElementById("query").disabled = true;
 
     } else {
-      // In this case, the person is not logged into Facebook, so we call the login() 
-      // function to prompt them to do so. Note that at this stage there is no indication
-      // of whether they are logged into the app. If they aren't then they'll see the Login
-      // dialog right after they log in to Facebook. 
-      // The same caveats as above apply to the FB.login() call here.
-      //FB.login(function(response) {window.location.replace('../home/' + response.authResponse.accessToken);}, {scope: 'quotes'});
-      //window.location.replace('../home');
       document.getElementById('login_welcome').innerHTML = "Welcome, guest!";
       document.getElementById("query").disabled = true;
 
@@ -151,9 +142,17 @@
 $( document ).ready(function() {
 //alert( "ready!" );
 
-
-document.getElementById('AboutPageHolder').innerHTML =
-        '<object type="type/html" data="/static/html/About3.html"><\/object>';
+$("#Reasons").dialog({
+    //modal: true,
+    resizable: false,
+    autoOpen : false,
+    position: ['center', 'top'],
+    show: 'blind',
+    hide: 'blind',
+    modal: true,
+    closeOnEscape: false,
+    dialogClass: 'ui-dialog-osx',
+});
 
 $("#about_page_link").on("click", function() {
   $('#NonHeader').hide();
@@ -186,8 +185,39 @@ $("#logo").on("click", function() {
 
 });*/
 
+$("#reasonButton").on("click", function() {
+  var id = $("#profile_link").attr("title");
+  var s = $("#last_search").attr("title");
+  var t = $("#last_type").attr("title");
+  
+  $('#LoadingReason').show();
+
+  $.ajax({
+      url: '../reason/',
+      type: 'get',
+      dataType: 'html',
+
+      data: {friend_id : id, query : s, access_token : access_token, QueryType : t},
+      success:
+        function(response) {
+          $('#LoadingReason').hide();
+
+          $('#Reasons_Content').html(response);
+          $('#Reasons').dialog('open')
+        }
+    });
+})
+
 $("#query").keyup(function(event) {
   if (event.which == 13) {
+    
+    var query_value = $("#query").val();
+    var query_type = $("#QueryType").val();
+
+    $("#last_search").attr("title", query_value);/*$("#query").value);*/
+    $("#last_type").attr("title", query_type);/*$("#query").value);*/
+
+    $("#InfoArea").attr("hidden", true);
 
     //Update the style for the search box
     var fileref=document.createElement("link");
@@ -223,6 +253,9 @@ $("#query").keyup(function(event) {
 });
 
 </script>
+</head>
+<body>
+
 
 <div id="HeaderBar">
   <a href=""><img id="logo" src="/static/images/Agent_Logo_White.png" /></a>
@@ -237,7 +270,7 @@ $("#query").keyup(function(event) {
   
   <div id="login_info">
     <div id="login_welcome">Welcome, guest!</div>
-    <fb:login-button id="fb_button" auto_logout_link=true data-scope="friends_about_me, friends_interests, friends_likes, friends_hometown" show-faces="false" width="200" max-rows="1"></fb:login-button>
+    <fb:login-button id="fb_button" auto_logout_link=true data-scope="friends_about_me, friends_interests, friends_likes, friends_hometown, read_stream" show-faces="false" width="200" max-rows="1"></fb:login-button>
   </div>
 
 </div>
@@ -246,10 +279,16 @@ $("#query").keyup(function(event) {
   Below we include the Login Button social plugin. This button uses the JavaScript SDK to
   present a graphical Login button that triggers the FB.login() function when clicked. -->
 
+<div id="Reasons" title="Reasons">
+  <div id="Reasons_Content">
+    
+  </div>
+</div>
+  
 <div id="PageFrame">
   <div id="NonHeader">
     <form hidden=true id="SearchQueryForm" method="get" action="../agent">
-        <select>
+        <select id="QueryType" name="QueryType">
           <option value="general">I want to learn about</option>
           <option value="location">I want to plan a trip to</option>
         </select>
@@ -267,17 +306,62 @@ $("#query").keyup(function(event) {
     <div id="SearchResults" hidden="true"></div>
   </div>
   
-  <div hidden=true id="InfoArea">
-    <p>Info Card</p>
-    <div id=profile_link>
-    </div>
+  <div id=last_search title="def">
+  </div>
+  <div id=last_type title="def">
   </div>
   
+  <div hidden=true id="InfoArea">
+    <h3 id=InfoHeader></h3>
+    
+    <div id=search_key></div>
+    
+    <div id=relative_score></div>
+
+    <div id=profile_link title="abc">
+    </div>
+    
+    <a type="link" id="reasonButton" onclick="" >Show reason for recommendation</a>
+     <div id="LoadingReason" hidden="True">
+      
+      <p id="LoadingReasonsText">Loading reasons</p>
+      <img id="LoadingReasonsImg" title="Loading results" src="/static/images/ajax-loader.gif" />
+       </div> 
+
+     </div>
+  
   <div hidden=true id="AboutPageHolder">
+    <p>
+Tired of digging through online forums and question-and-answer sites for
+mediocre answers? So are we. Sometimes the answer is closer than you think.
+</p>
+<p>
+A fundamental limitations of question-and-answer sites (and even the internet as
+a whole) is that while it is a nearly infinite repository of information, it
+does not, and perhaps cannot, capture the full extent of knowledge---the
+understanding of information and associations between things---of the
+contributing users. Projects such as IBM Watson and Google
+Knowledge Graph, as well as the development of the Resource
+Description Framework are a step toward a knowledge-based, semantic,
+web, but their usefulness is limited to certain, well-defined tasks.
+</p>
+<p>
+Enter Agent. Rather than automating the process of knowledge gathering, Agent
+identifies the individuals within your social networks who are most likely to be
+able to provide knowledge about a particular topic. By recommending experts
+from people you actually know, Agent improves your ability to get a timely,
+personal response, and allows you to establish a more meaningful dialogue about
+a topic than allowed by one-off, question-and-answer formats or pre-written
+articles. Agent brings you knowledge through the web.
+</p>
   </div>
 </div>
 
+
 </body>
+<div id="footer">Copyright &copy; 2014 Brandon Li, Daniel Tahara, and Chris Zeng. All rights reserved.</div>
+
+
 </html>
 
 

@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^test/', tests),
     url(r'^ajax_search/', ajax_search),
     url(r'^ajax_aboutpage/', ajax_aboutpage),
-    url(r'^refresh_data/', refresh_data)
+    url(r'^refresh_data/', refresh_data),
+    url(r'^reason/', why_recommended),
     #url(r'^w*', bad_address), #matches everything else
 )

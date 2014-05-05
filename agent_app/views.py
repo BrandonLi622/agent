@@ -16,6 +16,34 @@ import agent_app.integrated as integrated
 import agent_app.Yahoo_Utilities as Yahoo_Utilities
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.views.decorators.cache import never_cache
+
+def why_recommended(request):
+    logging.warning(str(request.GET['friend_id']))
+    
+    friend_id = request.GET['friend_id']
+    search_string = request.GET['query']
+    access_token = request.GET['access_token']
+    query_type = request.GET['QueryType']
+
+    search_keys = Yahoo_Utilities.extract_entities(search_string)
+    mid_tuples = fb.entities_to_mid_tuples(search_keys)
+    reasons = rec.why_recommended(mid_tuples, friend_id, access_token, query_type)
+    
+    logging.warning("Got past reasons")
+    
+    t = loader.get_template('ReasonResults.html')
+    c = Context({
+        'post_list': reasons,
+        'search_string' : search_string,
+    })
+    
+    html = t.render(c)
+    logging.warning("Result html")
+    logging.warning(html)
+    
+    return HttpResponse(html)
+
 
 def refresh_data(request):
     access_token = ""
@@ -29,9 +57,10 @@ def refresh_data(request):
 
 #This is a hack
 def tests(request):
-    user2 = User.objects.all().filter(facebook_id = "2000")[0]
-    fb.add_profile(user2,"Quotes",["turkey"])
+    user2 = User.objects.all().filter(facebook_id = "100000661170750")[0]
     
+    fb.add_profile(user2,"Quotes",["turkey"])
+    return HttpResponse("hello")
     '''
     entities = fb.entities_to_topics(["apple", "cherry", "mango"])
     html = ""
@@ -69,7 +98,6 @@ def search(request):
     #user = User.objects.all().filter(facebook_id = "2000")[0]
     #fb.add_profile(user,"Interests",["Italy", "mangoes"])
 
-    
     logging.warning("Hello there")
 
     try:
@@ -103,8 +131,12 @@ def search(request):
     
     return HttpResponse(t.render(c))
 
+@never_cache
 def ajax_search(request):
+    #logging.disable(logging.CRITICAL)
+
     search_string= ""
+    query_type = ""
     rec_list= []
     access_token=""
     user_id = 0
@@ -117,7 +149,10 @@ def ajax_search(request):
         logging.warning("After scrape")
         
         search_string = request.GET['query']
+        query_type = request.GET['QueryType']
         user_id = int(request.GET['user_id'])
+        
+        logging.warning(query_type)
 
         #Need to break up the search_string into multiple entities using Yahoo
         #for now just use this
@@ -125,7 +160,7 @@ def ajax_search(request):
         search_keys = Yahoo_Utilities.extract_entities(search_string)
         
         logging.warning("Did a search: " + search_string);
-        rec_list = integrated.recommend(access_token, search_keys)
+        rec_list = integrated.recommend(access_token, search_keys, query_type)
     
     except Exception:
         pass
@@ -146,6 +181,7 @@ def ajax_search(request):
     logging.warning(str(rec_list))
     
     return HttpResponse(t.render(c))
+
 
 def fb_login(request):
     logging.warning("Did a log-in");
@@ -174,6 +210,7 @@ def logged_in(request, accessToken):
         return HttpResponseRedirect('../../agent')
         #return HttpResponse(html)
 
+@never_cache
 def ajax_aboutpage(request):
     return HttpResponse(loader.get_template('About.html'));
 

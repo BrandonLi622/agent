@@ -4,6 +4,7 @@ import re
 from agent_app.models import *
 import logging
 from datetime import datetime, date
+#logging.disable(logging.CRITICAL)
 
 # TODO:
 # - Error handling for topic/search
@@ -21,19 +22,17 @@ FREEBASE_MID_REGEX = r'^\/m\/\w+$'
 #-Brandon
 def get_notable_type(topic):
     mid = topic['mid']
-    logging.warning("topic is")
     id = None
     try:
         id = topic['id']
     except KeyError:
         pass
     name = topic['name']
-    logging.warning("topic is")
 
 
     notable_type = None
     try:
-        logging.warning("Does it get here?")
+        #logging.warning("Does it get here?")
         notable_type = topic['notable']['id']
     except KeyError:
         pass
@@ -41,7 +40,7 @@ def get_notable_type(topic):
         logging.warning("Different exception")
         pass
 
-    logging.warning("marker")
+    #logging.warning("marker")
 
     # This is really shitty code; this should probably be wrapped in the
     # try/except somehow with a custom execption
@@ -65,7 +64,7 @@ def get_notable_type(topic):
                 notable_type = types[0]['id']
         else:
             notable_type = notable_types[0]['id']
-    logging.warning("Notable type is: " + "test")
+    #logging.warning("Notable type is: " + "test")
     return notable_type
 
 def get_type_mid(topic):
@@ -92,12 +91,14 @@ def add_counts(mid_tuples):
         add_count(mid_tuple)
 
 #should this really be add interactions?
-def add_profile(user, field_type, entities,
+def add_profile(user, field_type, retrieval_url, entities,
         site_name='facebook'):
     '''Store a given interaction represented by a facebook user_id, source type
     (class name), and list of entities'''
 
     topics = entities_to_topics(entities)
+    logging.warning("topics is length: " + str(len(topics)))
+    
     for topic in topics:
         mid = topic['mid']
         id = topic['id']
@@ -106,15 +107,21 @@ def add_profile(user, field_type, entities,
         type = id_to_mid(notable_type)
         domain = get_domain_mid(topic)
 
+        logging.warning("interaction 1")
+        logging.warning(str(user) + " " + site_name + " " + mid + " " + id + " " + name + " " + type)
+        logging.warning(domain + " " + field_type)
         # Create object of type source type
         interaction = Profile(user_id=user,
                 site_name=site_name, freebase_mid=mid,
                 freebase_id=id, freebase_name=name,
-                freebase_type=type, freebase_domain=domain, field_type=field_type)
+                freebase_type=type, freebase_domain=domain, field_type=field_type,
+                retrieval_url=retrieval_url)
+        logging.warning("interaction 2")
         interaction.save()
-
+        logging.warning("interaction 3")
+        
 #should this really be add interactions?
-def add_action(user, field_type, field_id, entities,
+def add_action(user, field_type, retrieval_url, entities,
         site_name='facebook'):
     '''Store a given interaction represented by a facebook user_id, source type
     (class name), and list of entities'''
@@ -133,7 +140,7 @@ def add_action(user, field_type, field_id, entities,
                 site_name=site_name, freebase_mid=mid,
                 freebase_id=id, freebase_name=name,
                 freebase_type=type, freebase_domain=domain,
-                field_type=field_type, field_id = field_id)
+                field_type=field_type, retrieval_url = retrieval_url)
         interaction.save()
 
 def entities_to_topics(entities):
@@ -141,6 +148,7 @@ def entities_to_topics(entities):
     objects corresponding to those tags'''
     
     topics = []
+    logging.warning("entities is: " + str(entities))
     for entity in entities:
         results = search(entity)
         if len(results) == 0:
@@ -148,7 +156,14 @@ def entities_to_topics(entities):
 
         # For now, only consider first result
         best_match = results[0]
-        mid = best_match['mid']
+        logging.warning("best match is: " + str(best_match))
+        mid = ""
+        '''
+        try:
+            mid = best_match['mid']
+        except KeyError:
+            id = best_match['id']
+            mid = id_to_mid(id)'''
         topics.append(best_match)
 
     return topics
@@ -236,11 +251,13 @@ def get_topic(query):
     starttime = datetime.now()
     response = json.loads(urllib.urlopen(url).read())
     endtime = datetime.now()
-    logging.warning("Request duration " + str(endtime - starttime))
+    #logging.warning("Request duration " + str(endtime - starttime))
 
 
     #logging.warning(query)
     #logging.warning(str(response))
+    
+    #What if this is empty???
 
 
     return response

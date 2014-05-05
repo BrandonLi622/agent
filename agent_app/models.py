@@ -9,7 +9,6 @@ from django.db import models
 
 class FreebaseMids(models.Model):
     objects = models.Manager() #Necessary to perform queries
-
     search_key = models.CharField(max_length=50)
     mid = models.CharField(max_length=50)
     type_mid = models.CharField(max_length=50)
@@ -47,6 +46,8 @@ class SiteInteraction(models.Model):
     freebase_name = models.CharField(max_length=100)
     freebase_type = models.CharField(max_length=20)
     freebase_domain = models.CharField(max_length=20)
+    field_type = models.CharField(max_length=50) #e.g. interests, etc.
+    retrieval_url = models.CharField(max_length=1000)
 
     def __unicode__(self):
 	return self.freebase_id
@@ -59,18 +60,15 @@ class SiteInteraction(models.Model):
 #Interest, etc.
 class Profile(SiteInteraction):
     objects = models.Manager() #Necessary to perform queries
-    field_type = models.CharField(max_length=50) #e.g. interests, etc.
-    pass
+    #field_text = models.CharField(max_length=1000)
 
 class Location(SiteInteraction):
     objects = models.Manager() #Necessary to perform queries
-    pass
 
 #A post, a message, etc.
 class Action(SiteInteraction):
     objects = models.Manager() #Necessary to perform queries
-    field_type = models.CharField(max_length=50) #e.g. posts, etc.
-    field_id = models.CharField(max_length=50)
-    pass
+    #field_id = models.CharField(max_length=50)
+    #field_text = models.CharField(max_length=1000)
 
 

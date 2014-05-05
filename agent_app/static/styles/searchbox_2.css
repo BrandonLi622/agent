@@ -3,26 +3,27 @@
     height: 100%;*/
     padding-left: 40px;
     padding-top: 40px;
-    margin-left: 0;
+    margin-left: 0px;
     margin-right: auto;
-    width=50%;
+    width: 50%;
     float: left;
 }
 
 #InfoArea {
-    float: left;
-    border: 1px solid black;
-    margin-left: 150;
-    margin-top: 40;
-    padding: 30;
+    position: absolute;
+    border: 0.5px outset black;
+    margin-left: 670px;
+    margin-top: 165px;
+    padding: 30px;
     border-radius: 15px;
-    box-shadow: 10px 10px 5px #888888;
+    width: 350px;
+    float: left;
 }
 
 #SearchQueryForm {
     border: none;
-    padding: 0;
-    margin-left: 0;
+    padding: 0px;
+    margin-left: 0px;
     margin-right: auto;
     /*margin-left: 30%;
     margin-right: 30%;*/
@@ -34,6 +35,7 @@
 }
 
 #SearchResults {
+
     /*margin-left: 30%;
     margin-right: 30%;*/
 }

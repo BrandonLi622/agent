@@ -5,10 +5,7 @@ import json
 import agent_app.freebase as fb
 import agent_app.Yahoo_Utilities as Yahoo_Utilities
 from agent_app.models import *
-
-def scrape_friends(accessToken):
-    logging.warning("start function")
-    return
+#logging.disable(logging.CRITICAL)
 
 #Assume that the token is good
 def get_friend_ids(accessToken):
@@ -23,7 +20,6 @@ def get_friend_ids(accessToken):
             ids.append(friend['id'])
             
     logging.warning("getting ids")
-    logging.warning(str(ids))
 
     return ids
 
@@ -39,6 +35,28 @@ def get_friend_names(accessToken):
     	    names += '<p>' + friend['name'] + '<//p>'
     return names
 
+def retrieve_facebook_item(url, type, accessToken):
+    payload = {'access_token': accessToken}
+    #r = requests.get('https://graph.facebook.com/me/friends', params=payload)
+    r = requests.get(url, params=payload)
+    try:
+        if type == "hometown":
+            data = r.json()['data'][0]
+            reason = "Hometown: " + data
+        elif type == "like":
+            data = r.json()['data'][0]['name']
+            reason = "Likes: " + data
+            return reason
+        elif type == "status":
+            data = r.json()['message']
+            reason = "Status: " + data
+            return reason
+        else:
+            return str(data)
+    except Exception as e:
+        logging.warning("Exception in retrieve_facebook_item: " + str(e))
+        return ""
+
 
 def scrape_friend_data(accessToken):
     logging.warning("start_function")
@@ -46,6 +64,7 @@ def scrape_friend_data(accessToken):
     payload = {'access_token': accessToken}
     r = requests.get('https://graph.facebook.com/me/friends/', params=payload)
     js = r.json()
+    logging.warning("js is: " + str(js))
     friends = js['data']
     random.seed()
 
@@ -53,48 +72,63 @@ def scrape_friend_data(accessToken):
     FriendData = []
     #i = 1
     #for friend in friends:
-    n = 10
-    for i in range(0,n):
-        friend = friends[random.randint(0,len(friends)-1)]
-        name = friend['name']
-        logging.warning(str(User.objects.all()))
-        logging.warning("check")
-        if len(User.objects.all().filter(facebook_id = friend['id'])) == 0:
-            logging.warning("!!")
-            user = User(facebook_id=friend['id'], facebook_name=name)
-            user.save()
-            data = []
-            #logging.warning(str(i ) + " " + name + " " + friend['id'])
-            i=i+1
-            r2 = requests.get('https://graph.facebook.com/' + str(friend['id']), params=payload)
-            friend_dict = r2.json()
-            if 'hometown' in friend_dict:
-                hometown = friend_dict['hometown']
-                fb.add_profile(friend['id'],'hometown',hometown)
-                data.append(hometown['name'])	
-
-            r3 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/likes', params=payload)
-            likes_dict = r3.json()['data']
-            for like in likes_dict:
-                try:
-                    likeid = str(like['id'])
-                    likename = str(like['name'])
-                    fb.add_action(friend['id'],'/like',likeid,likename)
-                    data.append(likename)
-                except Exception:
+    for i in range(0,len(friends)):
+        try:
+            friend = friends[i]#[random.randint(0,len(friends)-1)]
+            name = friend['name']
+            logging.warning(str(User.objects.all()))
+            logging.warning("check")
+            if len(User.objects.all().filter(facebook_id = friend['id'])) == 0:
+                logging.warning("!!" + name)
+                user = User(facebook_id=friend['id'], facebook_name=name)
+                user.save()
+                data = []
+                #logging.warning(str(i ) + " " + name + " " + friend['id'])
+                i=i+1
+                r2 = requests.get('https://graph.facebook.com/' + str(friend['id']), params=payload)
+                friend_dict = r2.json()
+                if 'hometown' in friend_dict:
+                    hometown = friend_dict['hometown']['name']
+                    logging.warning("Adding hometown")
+                    fb.add_profile(user,'hometown', 'Hometown: ' + hometown, [hometown])
+                    #fb.add_interaction(friend['id'], 'hometown', [hometown], "Profile")
+                    data.append(hometown)	
+    
+                r3 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/likes', params=payload)
+                likes_dict = r3.json()['data']
+                
+                logging.warning(str(len(likes_dict)))
+                for like in likes_dict:
+                    try:
+                        likeid = str(like['id'])
+                        likename = str(like['name'])
+                        
+                        retrieve_url = 'https://graph.facebook.com/' + str(friend['id']) + '/likes/' + likeid
+                        
+                        fb.add_action(user,'like',retrieve_url,[likename])
+                        data.append(likename)
+                    except Exception as e:
+                        logging.warning(str(e))
                         pass
+    
+                r4 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/statuses', params=payload)
+                logging.warning("Getting to statuses?")
+                logging.warning(str(r4.json()))
 
-            r4 = requests.get('https://graph.facebook.com/' + str(friend['id']) + '/statuses', params=payload)
-            status_dict = r4.json()['data']
-            for status in status_dict:
-                try:
-                    statusid = status['id']
-                    resultlist = Yahoo_Utilities.extract_entities(status['message'])
-                    for result in resultlist:
-                    	fb.add_action(friend['id'],'/status',statusid,result)
-                        data.append(result)
-                except Exception:
-                    pass
+                status_dict = r4.json()['data']
+                logging.warning(str(status_dict))
+                logging.warning(str(len(status_dict)))
+                for status in status_dict:
+                    try:
+                        statusid = status['id']
+                        retrieve_url = 'https://graph.facebook.com/' + statusid
+                        resultlist = Yahoo_Utilities.extract_entities(status['message'])
+                        fb.add_action(user,'status',retrieve_url,resultlist)
+                    except Exception as e:
+                        logging.warning(str(e))
+                        pass
+        except Exception as e:
+            logging.warning("Exception in scraping: " + str(e))
 
 def num_updated(friends_ids):
     count = 0
@@ -102,14 +136,6 @@ def num_updated(friends_ids):
     for friend_id in friends_ids:
         s = User.objects.filter(facebook_id = friend_id)
         count += len(s)
+    logging.warning("made it to end of function")
     return count
 
-
-def num_friends(friends_ids):
-    logging.warning("test")
-    count = 0
-    logging.warning("Gets to the num_friends")
-    for friend_id in friends_ids:
-        s = User.objects.filter(facebook_id = friend_id)
-        count += len(s)
-    return count
