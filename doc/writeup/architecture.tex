@@ -20,7 +20,13 @@ for capturing user input to pass to the server backend  It is implemented as a
 series of models and views using the Python Django framework.
 
 \subsubsection{Input/Results}
-\todo{Chris of BLi, please fill in once this is done}
+The user has the option of selecting from preset ``complete the sentence''-type drop 
+down query options. We currently support two options: ``I want to learn about'' and
+``I want to plan a trip to.'' The purpose of these options is to optimize the results by
+narrowing down the scope of the search. For example, a query such as ``I want to
+learn about'' is fairly general and uses all of the data in the database to generate
+a response, but a query such as ``I want to plan a trip to'' may only use Location entries
+in its recommendations.
 
 \subsubsection{Authentication}
 The web client authenticates users by using the Facebook OAuth API. Although the

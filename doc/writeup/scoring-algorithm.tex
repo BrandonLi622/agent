@@ -1,3 +1,5 @@
+
+
 \section{Scoring Algorithm}
 \label{sec:scoring}
 
@@ -26,6 +28,32 @@ identified the identified the scoring criteria as follows:
 where friend's activity includes the friend's posts, check-ins, interest,
 \todo{[TODO: fill in]}
 and ``related terms'' are defined as the topic and domain of a term as given by the Freebase API.
+
+
+\begin{algorithm}
+\caption{Score Friend}
+\begin{algorithmic}
+\STATE Assume we have $friendId$ and $\alpha > \beta > \gamma$
+\STATE $score \gets 0$
+\FORALL{$key \in search-keys$}
+  \FORALL{$entity \in entities_{userId=friendId}$}
+    \IF{$entity[``mid''] = key[``mid'']$}
+      \STATE $score \gets score + (\alpha \times tfscale_{entity})$
+      \STATE continue
+    \ENDIF
+    \IF{$entity[``typeMid'']  = key[``typeMid'']$}
+      \STATE $score \gets score + (\beta \times tfscale_{entity})$
+      \STATE  continue
+    \ENDIF
+        \IF{$entity[``domainMid'']  = key[``domainMid'']$}
+      \STATE $score \gets score + (\gamma \times tfscale_{entity})$
+      \STATE  continue
+    \ENDIF
+\ENDFOR
+\ENDFOR
+\STATE Scale score by number of keys matched
+\end{algorithmic}
+\end{algorithm}
 
 Term Frequency Inverse-Document Frequency (TF-IDF) \todo{[Citation needed]} is a
 well-established metric for determining how relevant a given term is to a
